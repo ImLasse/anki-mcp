@@ -88,3 +88,10 @@ def tool(name, description, properties=None, required=(), *, write=False, destru
         return function
 
     return register
+
+
+@dataclass
+class ContentResult:
+    """Explicit MCP content, for example a real image block for vision clients."""
+
+    content: list

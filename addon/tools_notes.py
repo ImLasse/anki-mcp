@@ -234,3 +234,17 @@ def empty_cards(s):
 def delete_cards(s, card_ids, confirm):
     s.cards(card_ids)
     return s.col.remove_cards_and_orphaned_notes(card_ids)
+
+
+@tool(
+    "usage_guide",
+    "Read concrete Anki MCP workflows and examples. Call before image occlusion or custom note types. Explains localized fields, media, mask grouping, native vs third-party types and safe editing.",
+    {"topic": enum("start", "image_occlusion", "notetypes", "learning", "media", "quality")},
+    ("topic",),
+)
+def usage_guide(s, topic):
+    import json
+    from pathlib import Path
+
+    guides = json.loads(Path(__file__).with_name("ai_guide.json").read_text(encoding="utf-8"))
+    return {"topic": topic, "guide": guides[topic]}

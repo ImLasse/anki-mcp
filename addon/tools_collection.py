@@ -189,7 +189,21 @@ def set_preferences(s, patch):
 
 @tool("list_notetypes", "List native note type IDs, names and use counts.")
 def models(s):
-    return [{"id": x.id, "name": x.name, "use_count": x.use_count} for x in s.col.models.all_use_counts()]
+    result = []
+    for entry in s.col.models.all_use_counts():
+        model = s.model(entry.id)
+        result.append(
+            {
+                "id": entry.id,
+                "name": entry.name,
+                "use_count": entry.use_count,
+                "fields": [field["name"] for field in model["flds"]],
+                "cloze": bool(model["type"]),
+                "original_stock_kind": model.get("originalStockKind", 0),
+                "native_image_occlusion": model.get("originalStockKind") == 6,
+            }
+        )
+    return result
 
 
 @tool("get_notetype", "Read all fields, HTML templates, CSS and native note type options.", {"notetype_id": I}, ("notetype_id",))

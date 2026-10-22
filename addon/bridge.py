@@ -60,7 +60,7 @@ def check_connection(url, token):
     initialized = call(
         1,
         "initialize",
-        {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "anki-mcp-setup-check", "version": "0.2.0"}},
+        {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "anki-mcp-setup-check", "version": "0.3.0"}},
     )
     tools = call(2, "tools/list")
     collection = call(3, "tools/call", {"name": "collection_info", "arguments": {}})

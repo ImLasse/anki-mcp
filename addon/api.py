@@ -147,4 +147,4 @@ class Service:
 
 
 # Import modules after Service exists; decorators register all public tools.
-from . import tools_collection, tools_notes, tools_learning, tools_media  # noqa: E402,F401
+from . import tools_collection, tools_notes, tools_learning, tools_media, tools_quality  # noqa: E402,F401

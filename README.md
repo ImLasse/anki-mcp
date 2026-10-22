@@ -2,7 +2,16 @@
 
 Ein natives **Anki-Desktop-Add-on**, mit dem KI-Assistenten deine bestehende Sammlung bearbeiten und deinen Lernstand auswerten können. Entwickelt für umfangreiche Lernsammlungen, insbesondere im Medizinstudium. Kein AnkiConnect erforderlich; keine zusätzlichen Python-Pakete im Add-on erforderlich.
 
-**61 MCP-Werkzeuge** für Decks, Notizen, Karten, Medien, native Bildverdeckung, Tags, Lernplanung, Statistiken und vollständige native Deck-Optionsvorlagen. Verbindung über lokales Streamable HTTP oder eine mitgelieferte Python-stdio-Bridge.
+**65 MCP-Werkzeuge** für Decks, Notizen, Karten, Medien, native Bildverdeckung, Tags, Lernplanung, Statistiken und vollständige native Deck-Optionsvorlagen. Verbindung über lokales Streamable HTTP oder eine mitgelieferte Python-stdio-Bridge.
+
+## Neu in 0.3.0
+
+- **Anleitung für die KI:** `usage_guide` liefert konkrete Abläufe für Bildverdeckung, Notiztypen, Medien, Lernanalyse und Qualitätsprüfung. Der Verbindungsdialog erklärt diese Funktionen im Reiter **KI-Funktionen**.
+- **Bilder tatsächlich ansehen:** `get_image` liefert ein MCP-Bild statt nur Base64-Text. Ein bildfähiger Client kann damit die Lage der Masken bestimmen. Native Bildverdeckung und kompatible Klone werden anhand des Notiztyps erkannt, auch mit deutschen Feldnamen.
+- **Vor dem Speichern prüfen:** `preview_notes` rendert vorgeschlagene Karten als natives Anki-HTML ohne Speichern und meldet doppelte erste Felder. Die native Vorschau kann dynamische Felder als Platzhalter zeigen.
+- **Technische Qualitätsprüfung:** `audit_notes` findet leere Pflicht-/Quellenfelder, fehlende lokale Medien und Cloze-Notizen ohne Cloze-Markierung. Es bewertet keine medizinische Richtigkeit und überprüft keine Quellenautorität.
+
+Update wie bisher über **Werkzeuge → Erweiterungen → Aus Datei installieren…**; anschließend Anki und den KI-Client neu starten. Die Add-on-ID bleibt gleich. Die Einrichtungsanleitung aus 0.2.0 ist vollständig enthalten.
 
 ## Funktionen
 
@@ -10,7 +19,7 @@ Ein natives **Anki-Desktop-Add-on**, mit dem KI-Assistenten deine bestehende Sam
 | --- | --- |
 | Bestehende Sammlung | Decks, Notizen und Karten lesen; vollständige Anki-Suchsyntax, paginierte Ergebnisse |
 | Decks | Anlegen, umbenennen, verschachteln, löschen, Beschreibungen, Karten verschieben, Optionsvorlagen zuweisen |
-| Notizen und Karten | Einzeln oder in Batches anlegen/bearbeiten; HTML, Cloze, Basic, umgekehrte Karten, eigene Felder, Vorlagen und CSS; Notiztyp wechseln |
+| Notizen und Karten | Vorschau ohne Speichern, technische Qualitätsprüfung; einzeln oder in Batches anlegen/bearbeiten; HTML, Cloze, Basic, umgekehrte Karten, eigene Felder, Vorlagen und CSS; Notiztyp wechseln |
 | Bilder, Audio und Video | Medien hochladen/lesen, kollisionssichere Dateinamen, Referenzen in Feldern, fehlende/ungenutzte Medien finden, Medienpapierkorb |
 | Bildverdeckung | Native Anki Image Occlusion erstellen, lesen und bearbeiten; Rechtecke mit normalisierten Koordinaten; native Maskensyntax für weitere Formen und Gruppen |
 | Tags | Hierarchische Tags suchen, hinzufügen, entfernen, umbenennen und global löschen |
@@ -26,7 +35,7 @@ Vollständiger [Werkzeugkatalog](docs/tools.md), [Eingabeschemas](docs/tools.jso
 
 ## Installation
 
-1. `anki-mcp-0.2.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
+1. `anki-mcp-0.3.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
 2. In Anki: **Werkzeuge → Erweiterungen → Aus Datei installieren…** und die Datei auswählen.
 3. Anki neu starten und dein Profil öffnen.
 4. **Werkzeuge → Anki MCP – Einrichtung & Hilfe** öffnen. Die offline verfügbare Anleitung erklärt die Verbindung zur KI unter **Windows und macOS**. Der Reiter **Verbindung** zeigt deine tatsächlichen Pfade und kopierbare Client-Einstellungen.
@@ -123,11 +132,11 @@ python3 -m venv .venv
 
 Für die Qt-Integrationstests zusätzlich zur passenden Anki-Version `aqt`, `PyQt6` und `PyQt6-WebEngine` installieren und `QT_QPA_PLATFORM=offscreen` setzen. Ohne `aqt` wird dieser Test übersprungen. Tests erstellen temporäre echte Anki-Sammlungen und verwenden den offiziellen MCP-Python-Client für HTTP und stdio. Sie greifen nicht auf persönliche Profile zu.
 
-Ausgabe: `dist/anki-mcp-0.2.0.ankiaddon`. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
+Ausgabe: `dist/anki-mcp-0.3.0.ankiaddon`. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
 
 ## Umfang und Grenzen dieser Version
 
-Version **0.2.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
+Version **0.3.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
 
 Es gibt automatisierte Backend-, MCP- und Qt-Adaptertests. Eine manuelle Endabnahme mit deinem Desktop, deinem konkreten KI-Client und deiner persönlichen Sammlung steht noch aus. Große Exporte, Statistiken oder FSRS-Berechnungen können die Oberfläche während des Aufrufs blockieren. Details zu Versionen, Dateneinheiten und weiteren Grenzen stehen in [architecture.md](docs/architecture.md).
 

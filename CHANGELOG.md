@@ -1,5 +1,14 @@
 # Änderungen
 
+## 0.3.0
+
+- 65 MCP-Werkzeuge mit abrufbaren Anwendungsanleitungen und konkreten Beispielen für die KI.
+- `get_image` liefert echte MCP-Bildinhalte an bildfähige Clients; Ende-zu-Ende-Tests über HTTP und stdio.
+- `list_notetypes` zeigt Feldnamen und den nativen Bildverdeckungsstatus; kompatible Klone mit umbenannten deutschen Feldern sind geprüft.
+- `preview_notes` rendert Karten vor dem Speichern, einschließlich Cloze-Ordinals und Duplikatwarnungen.
+- `audit_notes` prüft technische Vollständigkeit, Pflicht-/Quellenfelder und lokale Medien ohne Änderungen.
+- Neuer Reiter **KI-Funktionen** in der eingebauten Hilfe. Keine automatische medizinische Prüfung und keine pauschale Unterstützung fremder Maskeneditoren.
+
 ## 0.2.0
 
 - Offline-Anleitung direkt in Anki: **Werkzeuge → Anki MCP – Einrichtung & Hilfe**, mit Fokus auf die KI-Verbindung unter Windows und macOS.

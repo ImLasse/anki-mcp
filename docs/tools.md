@@ -1,6 +1,6 @@
 # MCP-Werkzeuge
 
-61 Werkzeuge. Automatisch aus dem Tool-Register erzeugt.
+65 Werkzeuge. Automatisch aus dem Tool-Register erzeugt.
 
 Die vollständigen JSON-Eingabeschemas stehen in [tools.json](tools.json). Native Einstellungsfelder lassen sich mit `native_schema` abfragen.
 
@@ -43,6 +43,7 @@ Die vollständigen JSON-Eingabeschemas stehen in [tools.json](tools.json). Nativ
 | `find_replace` | Schreiben, `confirm=true` | Native find/replace on explicit notes, optionally in one field. Supports regex and case matching. confirm required. |
 | `empty_cards` | Lesen | Report cards whose cloze, mask or template content was removed. Native Anki preserves these until explicitly deleted. |
 | `delete_cards` | Schreiben, `confirm=true` | Delete explicit individual cards and any resulting orphan notes. Removes review history. Useful after inspecting empty_cards; confirm required. |
+| `usage_guide` | Lesen | Read concrete Anki MCP workflows and examples. Call before image occlusion or custom note types. Explains localized fields, media, mask grouping, native vs third-party types and safe editing. |
 | `card_statistics` | Lesen | Full native per-card statistics: review logs, FSRS difficulty/stability/retrievability, intervals, lapses and timing. |
 | `review_history` | Lesen | Paginated native review history for a card. Timestamps, ratings, elapsed times and scheduling details. |
 | `learning_statistics` | Lesen | Native Anki graphs for any search: review counts/time, intervals, card counts, answer ratings, FSRS retention/stability/difficulty and forecast. days=0 means all history. |
@@ -67,3 +68,6 @@ Die vollständigen JSON-Eingabeschemas stehen in [tools.json](tools.json). Nativ
 | `export_package` | Schreiben | Export a deck (including children) or entire collection to a staged .apkg, with media, scheduling and deck configs. Download with transfer_file. Does not close the collection. |
 | `import_package` | Schreiben, `confirm=true` | Import a staged .apkg through Anki's native importer, including media, tags and optional scheduling. Native importer options can be provided. Not covered by collection undo; backup first. |
 | `create_backup` | Schreiben | Create a native collection backup in add-on user_files/backups. Media are excluded by Anki; export_package includes them. Backup files are not sent to the model. |
+| `get_image` | Lesen | View an existing collection image as actual MCP image content for vision-capable clients. Use before placing occlusion masks. Supports PNG/JPEG/GIF/WebP, maximum 4 MiB; SVG/PDF must be converted by the client first. |
+| `preview_notes` | Lesen | Render proposed notes as native Anki question/answer HTML and CSS before saving. Does not add notes/cards. Standard note types preview every template; conditional templates may not generate a saved card. Cloze previews use actual cloze ordinals. Reports duplicates as warnings. |
+| `audit_notes` | Lesen | Technical note-quality audit for an Anki search: empty fields, missing local image/audio/video files, optional required/source fields and absent cloze markup. Paginated, read-only. Does not verify medical accuracy, authenticity of sources or remote URLs. required_fields use exact localized names. |

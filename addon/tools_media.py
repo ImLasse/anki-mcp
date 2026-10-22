@@ -298,3 +298,34 @@ def backup(s):
     directory.mkdir(exist_ok=True)
     created = s.col.create_backup(backup_folder=str(directory), force=True, wait_for_completion=True)
     return {"created": created, "includes_media": False}
+
+
+@tool(
+    "get_image",
+    "View an existing collection image as actual MCP image content for vision-capable clients. Use before placing occlusion masks. Supports PNG/JPEG/GIF/WebP, maximum 4 MiB; SVG/PDF must be converted by the client first.",
+    {"filename": S},
+    ("filename",),
+)
+def get_image(s, filename):
+    from .registry import ContentResult
+
+    path = s.file(filename, media=True, exists=True)
+    if path.stat().st_size > 4 * 1024 * 1024:
+        raise ToolError("Image exceeds 4 MiB. Resize it with the client's image tools before uploading")
+    raw = path.read_bytes()
+    if raw.startswith(b"\x89PNG\r\n\x1a\n"):
+        mime = "image/png"
+    elif raw.startswith(b"\xff\xd8\xff"):
+        mime = "image/jpeg"
+    elif raw[:6] in (b"GIF87a", b"GIF89a"):
+        mime = "image/gif"
+    elif raw.startswith(b"RIFF") and raw[8:12] == b"WEBP":
+        mime = "image/webp"
+    else:
+        raise ToolError("Expected PNG, JPEG, GIF or WebP image bytes")
+    return ContentResult(
+        [
+            {"type": "text", "text": "Collection image: " + filename},
+            {"type": "image", "data": base64.b64encode(raw).decode(), "mimeType": mime},
+        ]
+    )

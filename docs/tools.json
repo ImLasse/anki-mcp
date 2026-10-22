@@ -1097,6 +1097,35 @@
     }
   },
   {
+    "name": "usage_guide",
+    "description": "Read concrete Anki MCP workflows and examples. Call before image occlusion or custom note types. Explains localized fields, media, mask grouping, native vs third-party types and safe editing.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "enum": [
+            "start",
+            "image_occlusion",
+            "notetypes",
+            "learning",
+            "media",
+            "quality"
+          ]
+        }
+      },
+      "required": [
+        "topic"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
     "name": "card_statistics",
     "description": "Full native per-card statistics: review logs, FSRS difficulty/stability/retrievability, intervals, lapses and timing.",
     "inputSchema": {
@@ -1890,6 +1919,123 @@
     },
     "annotations": {
       "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_image",
+    "description": "View an existing collection image as actual MCP image content for vision-capable clients. Use before placing occlusion masks. Supports PNG/JPEG/GIF/WebP, maximum 4 MiB; SVG/PDF must be converted by the client first.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "preview_notes",
+    "description": "Render proposed notes as native Anki question/answer HTML and CSS before saving. Does not add notes/cards. Standard note types preview every template; conditional templates may not generate a saved card. Cloze previews use actual cloze ordinals. Reports duplicates as warnings.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "deck_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "notetype_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 500
+              },
+              "allow_duplicate": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "deck_id",
+              "notetype_id",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "audit_notes",
+    "description": "Technical note-quality audit for an Anki search: empty fields, missing local image/audio/video files, optional required/source fields and absent cloze markup. Paginated, read-only. Does not verify medical accuracy, authenticity of sources or remote URLs. required_fields use exact localized names.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100
+        },
+        "check_media": {
+          "type": "boolean"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
       "destructiveHint": false,
       "openWorldHint": false
     }

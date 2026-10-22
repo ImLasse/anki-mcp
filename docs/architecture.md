@@ -66,3 +66,13 @@ Der Funktionsumfang konzentriert sich auf Sammlung, Medien und Lernen. Login, Sy
 Die generierte YAML verwendet einen HTTP-MCP-Kanal zum lokalen Anki-Endpunkt mit lokalen Anki-Bearer-Headern für Runtime und Discovery. Der OpenAI-Runtime-Key wird ausschließlich als `env:CONTROL_PLANE_API_KEY` referenziert. Der Tunnelclient gehört nicht zum Add-on; Installation, Tunnel-Provisionierung und Kontoberechtigungen sind separate Einrichtungsschritte. Die YAML wird nur angezeigt und kopiert. Das Add-on startet keinen Tunnel und veröffentlicht keinen Endpunkt. Die Profilstruktur folgt der offiziellen Konfigurationsreferenz; ein echter Tunnel wurde mangels Konto-/Tunnel-Zugang noch nicht getestet.
 
 Quellen: [OpenAI Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels), [Tunnelclient-Konfiguration](https://github.com/openai/tunnel-client/blob/master/docs/configuration.md).
+
+## KI-Anleitungen, Bilder, Vorschau und Qualitätsprüfung ab 0.3.0
+
+`ai_guide.json` enthält gebündelte Anwendungsanleitungen, abrufbar über `usage_guide`. Die Initialisierungsanweisungen verweisen bei komplexen Aufgaben darauf. Ob ein Client diese Hinweise vollständig berücksichtigt, hängt vom Modell und Client ab. Dies ist keine feinabgestimmte oder trainierte Anki-KI.
+
+`get_image` liest ausschließlich Medien aus der Sammlung (PNG/JPEG/GIF/WebP, maximal 4 MiB), erkennt den MIME-Typ am Dateikopf und gibt einen typisierten MCP-ImageContent-Block zurück. `ContentResult` ist eine interne Rückgabeklasse; normale Notizdaten können nicht versehentlich als MCP-Bildantwort interpretiert werden. Der Client muss die Bildausgabe und Bildverarbeitung unterstützen. Es werden keine Masken automatisch durch das Add-on erkannt.
+
+`preview_notes` verwendet Ankis nativen Card-Layout-Renderer, ohne Notizen oder Karten zu speichern. Es zeigt alle Standardvorlagen bzw. die nativen Cloze-Ordinals; die tatsächliche Erzeugung kann bedingte leere Vorlagen auslassen. Der Renderer kann dynamische Spezialfelder als Platzhalter ausgeben. Anki-Render-Hooks einschließlich anderer Add-ons bleiben aktiv; deren Nebenwirkungen bzw. mögliche LaTeX-Mediencaches fallen nicht unter die Aussage, dass keine Karten gespeichert werden.
+
+`audit_notes` prüft HTML-Inhalte und lokale Medienreferenzen seitenweise. Es führt keine externen Downloads und keine LaTeX-Kompilierung aus. Es unterscheidet leere optionale Felder von ausdrücklich verlangten Pflichtfeldern. Das Fehlen eines Pflichtfelds im Modell wird separat gemeldet. Die fachliche Richtigkeit medizinischer Karten, die Existenz und Autorität von Quellen sowie externe URLs werden nicht verifiziert.

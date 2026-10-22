@@ -111,6 +111,8 @@ def test_setup_dialog_connects_to_anki_and_preserves_read_only_state(qt_app, tmp
             assert "Claude Desktop auf macOS" in guide
             assert "ChatGPT" in guide
             assert TOKEN not in guide
+            assert "Bildverdeckung erstellen" in dialog.usage_browser.toPlainText()
+            assert "Vorschau vor dem Speichern" in dialog.usage_browser.toPlainText()
             dialog.sections.setCurrentIndex(1)
             assert dialog.help_browser.textCursor().selectedText() == "Claude Desktop auf Windows"
             dialog.tabs.setCurrentIndex(1)
