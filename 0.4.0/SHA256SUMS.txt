@@ -1,0 +1,3 @@
+72c302c41f5e690fef46ef2ee099140086a0212066f9c0e05c2c05820c5cf9aa  anki-mcp-0.4.0.ankiaddon
+991f3420e89730f5e51f81e7074c8f44d8b0526e4d8908ed22bcbebdcc6349fe  anki-mcp-claude-0.4.0.mcpb
+cbe4e44bb51aeada83541aa791526ffe72cb48430c73b4979fff8a12529a6bc4  anki-mcp-0.4.0-project.zip
