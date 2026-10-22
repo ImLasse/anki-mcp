@@ -1,0 +1,25 @@
+{
+  "manifest_version": "0.3",
+  "name": "anki-mcp",
+  "display_name": "Anki MCP",
+  "version": "0.4.0",
+  "description": "Connect Claude Desktop to your open Anki collection: cards, media, image occlusion and study progress.",
+  "author": {"name": "ImLasse"},
+  "repository": {"type": "git", "url": "https://github.com/ImLasse/anki-mcp.git"},
+  "homepage": "https://github.com/ImLasse/anki-mcp",
+  "license": "AGPL-3.0-or-later",
+  "tools_generated": true,
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js", "--port", "${user_config.port}", "--token-file", "${user_config.token_file}"]
+    }
+  },
+  "compatibility": {"platforms": ["darwin", "win32", "linux"], "runtimes": {"node": ">=20.0.0"}},
+  "user_config": {
+    "token_file": {"type": "file", "title": "Anki token file", "description": "Select user_files/token at the path shown under Anki MCP connection settings.", "required": true},
+    "port": {"type": "number", "title": "Anki MCP port", "description": "Local port displayed in the Anki MCP connection dialog.", "default": 8766, "min": 1024, "max": 65535}
+  }
+}
