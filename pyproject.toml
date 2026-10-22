@@ -1,0 +1,17 @@
+[project]
+name = "anki-mcp-addon"
+version = "0.1.0"
+description = "Native Anki Desktop MCP add-on for rich cards, media and learning analytics"
+requires-python = ">=3.10"
+license = "AGPL-3.0-or-later"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 140
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

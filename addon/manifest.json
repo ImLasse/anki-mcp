@@ -1,0 +1,10 @@
+{
+  "package": "anki_mcp",
+  "name": "Anki MCP – AI collection tools",
+  "author": "ImLasse",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ImLasse/anki-mcp",
+  "conflicts": [],
+  "min_point_version": 250905,
+  "max_point_version": 0
+}

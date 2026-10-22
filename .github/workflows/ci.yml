@@ -1,0 +1,44 @@
+name: Tests and add-on
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        anki: ['25.9.5', '26.9.3']
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libopengl0
+          python -m pip install -r requirements-dev.txt
+          python -m pip install "aqt==${{ matrix.anki }}" PyQt6 PyQt6-WebEngine
+      - name: Lint
+        run: |
+          ruff check addon scripts tests
+          ruff format --check addon scripts tests
+      - name: Test real Anki collections, Qt dispatch and official MCP clients
+        run: pytest -q
+      - name: Verify generated tool documentation
+        run: |
+          python scripts/generate_tool_docs.py
+          git diff --exit-code -- docs/tools.md docs/tools.json
+      - name: Build installable add-on
+        run: python scripts/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anki-mcp-${{ matrix.anki }}
+          path: dist/*.ankiaddon

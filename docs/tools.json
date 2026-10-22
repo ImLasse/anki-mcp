@@ -1,0 +1,1897 @@
+[
+  {
+    "name": "collection_info",
+    "description": "Current collection counts, scheduler day, FSRS enabled, due tree and undo status.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_decks",
+    "description": "All deck names, IDs, hierarchy and scheduler counts.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_deck",
+    "description": "Read a deck's full native record, including per-deck overrides.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "deck_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_deck",
+    "description": "Create a normal deck. Hierarchy uses ::, e.g. Medizin::Anatomie.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "rename_deck",
+    "description": "Rename or move a deck and its children using :: hierarchy.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "deck_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_decks",
+    "description": "Delete decks, subdecks and their cards. Inspect first; confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "deck_ids",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_deck",
+    "description": "Patch description and per-deck daily limits. get_deck shows native key names.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "patch": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "deck_id",
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_deck_options",
+    "description": "Full modern deck presets, FSRS parameters, retention, limits, defaults and shared preset use counts. Integers may be protobuf strings.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "deck_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "set_deck_options",
+    "description": "Patch every native preset option (snake_case). Default clones preset for this deck. shared=true changes all decks using it. global_fsrs explicitly changes collection-wide FSRS.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "patch": {
+          "type": "object"
+        },
+        "shared": {
+          "type": "boolean"
+        },
+        "preset_name": {
+          "type": "string"
+        },
+        "global_fsrs": {
+          "type": "boolean"
+        },
+        "limits": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "deck_id",
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "assign_deck_preset",
+    "description": "Assign an existing options preset to a normal deck.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "preset_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "deck_id",
+        "preset_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "filtered_deck",
+    "description": "Create, configure, rebuild or empty a filtered/custom-study deck. Query uses Anki search. Does not change the active deck.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "create",
+            "update",
+            "rebuild",
+            "empty"
+          ]
+        },
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "reschedule": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_preferences",
+    "description": "Read all native scheduling, reviewing, editing and backup preferences.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "set_preferences",
+    "description": "Recursively patch native Anki preferences; get_preferences gives valid keys.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "patch": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_notetypes",
+    "description": "List native note type IDs, names and use counts.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_notetype",
+    "description": "Read all fields, HTML templates, CSS and native note type options.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "notetype_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_notetype",
+    "description": "Create a standard or cloze note type with arbitrary fields, HTML templates, CSS, MathJax/LaTeX support.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "qfmt": {
+                "type": "string"
+              },
+              "afmt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "qfmt",
+              "afmt"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "css": {
+          "type": "string"
+        },
+        "cloze": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "fields",
+        "templates"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_notetype",
+    "description": "Update native note type fields, templates and CSS. Supply full ordered flds/tmpls arrays from get_notetype to add, remove, reorder or rename; preserve ord for existing entries. Can remove cards.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "patch": {
+          "type": "object"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "notetype_id",
+        "patch",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "clone_notetype",
+    "description": "Clone all fields, templates and styling of a note type.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "notetype_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_notetype",
+    "description": "Delete a note type and its notes/cards. confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "notetype_id",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "undo",
+    "description": "Undo the last Anki operation; also affects changes made manually in the GUI.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "redo",
+    "description": "Redo the last undone Anki operation.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "native_schema",
+    "description": "Discover every native field, enum value and nested structure accepted by settings, custom study and package import. Schemas reflect the running Anki version.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "deck_config",
+            "deck_limits",
+            "preferences",
+            "custom_study",
+            "import_options"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "search",
+    "description": "Search existing cards or notes with full Anki browser syntax: deck:, tag:, is:due, is:suspended, prop:lapses>3, added:, rated:, etc. Paginated IDs.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "cards",
+            "notes"
+          ]
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_notes",
+    "description": "Read fields as HTML, tags, GUIDs and generated card IDs.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "note_ids"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_cards",
+    "description": "Read scheduling and FSRS memory state. render=true includes question/answer HTML and CSS. due units depend on queue; see docs.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "render": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "card_ids"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_notes",
+    "description": "Create rich HTML notes with images (<img src=...>), audio/video ([sound:...]), cloze syntax and tags. Upload media first. Native Anki generates cards. Validates the whole batch before adding.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "deck_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "notetype_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 500
+              },
+              "allow_duplicate": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "deck_id",
+              "notetype_id",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_notes",
+    "description": "Patch named fields and optionally replace tags. Omitted fields/tags remain unchanged; all notes validated before saving.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "updates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "note_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 500
+              }
+            },
+            "required": [
+              "note_id"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_notes",
+    "description": "Delete notes and every card generated from them, including review history. confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "note_ids",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_tags",
+    "description": "Read all registered tags and their hierarchy.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "edit_tags",
+    "description": "Add or remove tags on explicit note IDs. Supports hierarchical tags such as Medizin::Kardiologie.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "add",
+            "remove"
+          ]
+        }
+      },
+      "required": [
+        "note_ids",
+        "tags",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "rename_tag",
+    "description": "Rename a tag and all its children across the collection.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "old": {
+          "type": "string"
+        },
+        "new": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "old",
+        "new"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "remove_tag",
+    "description": "Remove a tag and its children from the entire collection. confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "string"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "tag",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "change_notetype",
+    "description": "Convert notes to a new note type using native field/template mapping. Maps are target-index -> source-index arrays; -1 means blank/new. May delete cards. Inspect types first.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "field_map": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": -1
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "template_map": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": -1
+          },
+          "maxItems": 100
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "note_ids",
+        "notetype_id",
+        "field_map",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "find_duplicates",
+    "description": "Find duplicate note field content within an Anki search (e.g. identify redundant medical facts).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "field_name": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [
+        "field_name"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "find_replace",
+    "description": "Native find/replace on explicit notes, optionally in one field. Supports regex and case matching. confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "search": {
+          "type": "string"
+        },
+        "replacement": {
+          "type": "string"
+        },
+        "field_name": {
+          "type": "string"
+        },
+        "regex": {
+          "type": "boolean"
+        },
+        "match_case": {
+          "type": "boolean"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "note_ids",
+        "search",
+        "replacement",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "empty_cards",
+    "description": "Report cards whose cloze, mask or template content was removed. Native Anki preserves these until explicitly deleted.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_cards",
+    "description": "Delete explicit individual cards and any resulting orphan notes. Removes review history. Useful after inspecting empty_cards; confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "card_ids",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "card_statistics",
+    "description": "Full native per-card statistics: review logs, FSRS difficulty/stability/retrievability, intervals, lapses and timing.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "card_ids"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "review_history",
+    "description": "Paginated native review history for a card. Timestamps, ratings, elapsed times and scheduling details.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [
+        "card_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "learning_statistics",
+    "description": "Native Anki graphs for any search: review counts/time, intervals, card counts, answer ratings, FSRS retention/stability/difficulty and forecast. days=0 means all history.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "days": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 36500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "learning_overview",
+    "description": "Study dashboard for a search: total/new/learning/review, due, suspended, buried, leeches, mature cards, repeated lapses and forecast by day. Counts are independent (some overlap).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "forecast_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "schedule_cards",
+    "description": "Suspend, unsuspend, bury, unbury, move, flag, set due dates, forget or reposition explicit cards. Forget resets scheduling; confirm required for all actions. Uses native scheduler.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "suspend",
+            "unsuspend",
+            "bury",
+            "unbury",
+            "move",
+            "flag",
+            "set_due",
+            "forget",
+            "reposition"
+          ]
+        },
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "flag": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        },
+        "days": {
+          "type": "string"
+        },
+        "reset_counts": {
+          "type": "boolean"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "randomize": {
+          "type": "boolean"
+        },
+        "shift_existing": {
+          "type": "boolean"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "card_ids",
+        "action",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "review_queue",
+    "description": "Read the active deck's native review queue and next answer states, without answering cards.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "select_deck",
+    "description": "Select active deck for the Anki reviewer. Does not submit answers.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "deck_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "answer_card",
+    "description": "Submit an actual review answer through Anki's scheduler and write review history. Only use when user explicitly requests reviewing. Rating 1=Again, 2=Hard, 3=Good, 4=Easy. Requires first card in active queue.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "card_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "milliseconds_taken": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600000
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "card_id",
+        "rating",
+        "milliseconds_taken",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "custom_study_defaults",
+    "description": "Read native custom study defaults for a deck: limits, tags and study options.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "deck_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "custom_study",
+    "description": "Run native custom study: extend today's limits, study ahead, review forgotten cards, preview new cards, cram by tags. Request accepts native CustomStudyRequest JSON. Use custom_study_defaults first; confirm required.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "type": "object"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "request",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "fsrs_parameters",
+    "description": "Compute or evaluate native FSRS parameters from the matching review history without changing settings. Requires sufficient reviews; may take time. Apply computed parameters separately with set_deck_options(fsrs_params_6).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "compute",
+            "evaluate"
+          ]
+        },
+        "query": {
+          "type": "string"
+        },
+        "ignore_before_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "deck_id",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "store_media",
+    "description": "Store image, audio, video or other media from base64. Returns actual collision-safe filename and HTML/sound references. Never assumes requested filename was retained.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "data_base64": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename",
+        "data_base64"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "read_media",
+    "description": "Read local collection media as base64 in chunks; no arbitrary filesystem access. Default chunk 1 MiB.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4194304
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_media",
+    "description": "List collection media, optionally filtered by filename substring.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "contains": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "check_media",
+    "description": "Native Anki missing/unused media report; may normalize filenames and take time on large collections.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "trash_media",
+    "description": "Move specified collection media into Anki media trash. Not covered by collection undo; restore with restore_media_trash.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filenames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "filenames",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "restore_media_trash",
+    "description": "Restore Anki's media trash (all files).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_image_occlusion",
+    "description": "Create native Image Occlusion cards for anatomy/histology etc. Upload image first. Rectangles use normalized 0..1 coordinates and ordinal >=1; same ordinal groups masks on one card. Alternatively provide native cloze occlusions markup for ellipse/polygon/text and all advanced shapes.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "filename": {
+          "type": "string"
+        },
+        "notetype_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rectangles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ordinal": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "left": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "top": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "width": {
+                "type": "number",
+                "minimum": 1e-06,
+                "maximum": 1
+              },
+              "height": {
+                "type": "number",
+                "minimum": 1e-06,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "ordinal",
+              "left",
+              "top",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "occlusions": {
+          "type": "string"
+        },
+        "header": {
+          "type": "string"
+        },
+        "back_extra": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "deck_id",
+        "filename"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_image_occlusion",
+    "description": "Read native parsed occlusion shapes, grouping and note metadata. Image bytes use read_media.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "note_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_image_occlusion",
+    "description": "Update native Image Occlusion masks and optional header/back/tags. Rebuilds generated cards using Anki. Pass rectangles OR native occlusions to change masks.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "note_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rectangles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ordinal": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "left": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "top": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "width": {
+                "type": "number",
+                "minimum": 1e-06,
+                "maximum": 1
+              },
+              "height": {
+                "type": "number",
+                "minimum": 1e-06,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "ordinal",
+              "left",
+              "top",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "occlusions": {
+          "type": "string"
+        },
+        "header": {
+          "type": "string"
+        },
+        "back_extra": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "note_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "transfer_file",
+    "description": "Upload/download/list/delete staged .apkg files in the add-on's user_files/transfers folder. Upload chunks with offset (max 20 MiB per chunk, 512 MiB file). offset=0 creates a NEW file; delete first to replace. Never reads arbitrary paths.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "upload",
+            "download",
+            "list",
+            "delete"
+          ]
+        },
+        "filename": {
+          "type": "string"
+        },
+        "data_base64": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4194304
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "export_package",
+    "description": "Export a deck (including children) or entire collection to a staged .apkg, with media, scheduling and deck configs. Download with transfer_file. Does not close the collection.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "deck_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "include_media": {
+          "type": "boolean"
+        },
+        "include_scheduling": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "import_package",
+    "description": "Import a staged .apkg through Anki's native importer, including media, tags and optional scheduling. Native importer options can be provided. Not covered by collection undo; backup first.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "options": {
+          "type": "object"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "filename",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_backup",
+    "description": "Create a native collection backup in add-on user_files/backups. Media are excluded by Anki; export_package includes them. Backup files are not sent to the model.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  }
+]
