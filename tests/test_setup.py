@@ -90,6 +90,21 @@ def test_setup_check_rejects_wrong_token_without_exposing_it(tmp_path):
         assert TOKEN not in str(exc.value)
 
 
+def test_journal_tab_reads_real_persistent_entries(qt_app, service, note, monkeypatch):
+    from addon import setup_dialog
+
+    runtime = SimpleNamespace(server=None, config={}, root=service.files_dir.parent.parent, error=None, generation=1)
+    monkeypatch.setattr(setup_dialog, "mw", SimpleNamespace(col=service.col))
+    dialog = setup_dialog.SetupDialog(runtime)
+    try:
+        dialog.refresh_journal()
+        assert dialog.journal_entries.count() == 1
+        assert "add_notes" in dialog.journal_details.toPlainText()
+        assert "N. phrenicus" in dialog.journal_details.toPlainText()
+    finally:
+        dialog.close()
+
+
 def test_setup_dialog_connects_to_anki_and_preserves_read_only_state(qt_app, tmp_path, monkeypatch):
     from aqt.taskman import TaskManager
     from aqt.qt import QApplication

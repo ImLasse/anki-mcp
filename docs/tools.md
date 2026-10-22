@@ -1,6 +1,6 @@
 # MCP-Werkzeuge
 
-65 Werkzeuge. Automatisch aus dem Tool-Register erzeugt.
+80 Werkzeuge. Automatisch aus dem Tool-Register erzeugt.
 
 Die vollständigen JSON-Eingabeschemas stehen in [tools.json](tools.json). Native Einstellungsfelder lassen sich mit `native_schema` abfragen.
 
@@ -71,3 +71,18 @@ Die vollständigen JSON-Eingabeschemas stehen in [tools.json](tools.json). Nativ
 | `get_image` | Lesen | View an existing collection image as actual MCP image content for vision-capable clients. Use before placing occlusion masks. Supports PNG/JPEG/GIF/WebP, maximum 4 MiB; SVG/PDF must be converted by the client first. |
 | `preview_notes` | Lesen | Render proposed notes as native Anki question/answer HTML and CSS before saving. Does not add notes/cards. Standard note types preview every template; conditional templates may not generate a saved card. Cloze previews use actual cloze ordinals. Reports duplicates as warnings. |
 | `audit_notes` | Lesen | Technical note-quality audit for an Anki search: empty fields, missing local image/audio/video files, optional required/source fields and absent cloze markup. Paginated, read-only. Does not verify medical accuracy, authenticity of sources or remote URLs. required_fields use exact localized names. |
+| `plan_changes` | Schreiben | Create a persistent, reviewable before/after plan for existing notes, tags, cards and deck settings. Does not change the collection. At most 20 calls; each target may appear in only one call. Scheduler changes show the requested action; native scheduling determines final state. Apply with apply_change_plan. |
+| `apply_change_plan` | Schreiben, `confirm=true` | Apply a reviewed plan once. Rejects expired, already used or stale plans before changing anything. User must approve the displayed scope. Multiple native operations are grouped in one undo entry; an error may still have partial effects. |
+| `change_history` | Lesen | Read the persistent per-profile MCP change journal. Without entry_id returns summaries; with entry_id includes bounded before/after snapshots. Covers MCP operations only, not manual GUI edits. pending means outcome may be unknown after a crash. |
+| `similar_notes` | Lesen | Find local lexical overlap candidates for an Anki search using TF-IDF word and character features. Read-only, no automatic merging. Scores are not semantic equivalence or medical correctness: inspect both notes, especially negation, before recommending changes. At most 500 notes from the sorted search result. |
+| `exam_plan` | Lesen | Estimate a daily study budget until an exam from a search, active new cards, currently scheduled reviews and topic counts. Does not change scheduling. Fixed per-card time assumptions are explicit; future answers, relearning and reviews of newly learned cards are not predicted, so reserve extra time. |
+| `save_exam_plan` | Schreiben | Save an exam-planning request locally for later recalculation. Not synced by Anki; use export_workspace for transfer. Does not alter cards. |
+| `saved_exam_plans` | Lesen | Read locally saved exam requests. Recalculate with exam_plan to reflect current learning progress. |
+| `create_source` | Schreiben | Register a user-provided citation locally, with revision tracking. Does not fetch or verify its content. Stored outside Anki sync; export_workspace backs up sources and links. |
+| `update_source` | Schreiben | Replace a citation with a new revision. Linked notes become needs_review until explicitly acknowledged; existing note content is never silently rewritten. |
+| `list_sources` | Lesen | Read structured local source records, optionally filtered by title/authors text. Source records are user-provided, not verified. |
+| `link_source` | Schreiben | Link explicit notes to the current source revision. Optional citation_field appends an escaped citation to that existing Anki field, so the text syncs with Anki. Local links do not sync. A changed source still needs review before acknowledge_source_review. |
+| `source_notes` | Lesen | List linked notes and needs_review flags after source revisions. Missing/deleted notes remain visible for cleanup. Does not judge medical accuracy. |
+| `acknowledge_source_review` | Schreiben, `confirm=true` | After the user has checked linked notes against a changed source, mark them reviewed at the current revision. Does not rewrite card content or verify it. |
+| `export_workspace` | Lesen | Export local source records, source links and saved exam requests as JSON. Journal and temporary change plans are excluded. Treat exported note IDs as collection-specific. Save this response to back up or transfer metadata. |
+| `import_workspace` | Schreiben, `confirm=true` | Import a previously exported workspace into the same collection/profile on another machine. Merges by ID, replacing those records. Validate collection identity yourself: note IDs can refer to different notes in a different collection. Journal is not imported. |

@@ -1110,7 +1110,10 @@
             "notetypes",
             "learning",
             "media",
-            "quality"
+            "quality",
+            "changes",
+            "sources",
+            "exam"
           ]
         }
       },
@@ -2037,6 +2040,553 @@
     "annotations": {
       "readOnlyHint": true,
       "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "plan_changes",
+    "description": "Create a persistent, reviewable before/after plan for existing notes, tags, cards and deck settings. Does not change the collection. At most 20 calls; each target may appear in only one call. Scheduler changes show the requested action; native scheduling determines final state. Apply with apply_change_plan.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool": {
+                "type": "string"
+              },
+              "arguments": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "calls"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "apply_change_plan",
+    "description": "Apply a reviewed plan once. Rejects expired, already used or stale plans before changing anything. User must approve the displayed scope. Multiple native operations are grouped in one undo entry; an error may still have partial effects.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "plan_id": {
+          "type": "string"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "plan_id",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "change_history",
+    "description": "Read the persistent per-profile MCP change journal. Without entry_id returns summaries; with entry_id includes bounded before/after snapshots. Covers MCP operations only, not manual GUI edits. pending means outcome may be unknown after a crash.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entry_id": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "similar_notes",
+    "description": "Find local lexical overlap candidates for an Anki search using TF-IDF word and character features. Read-only, no automatic merging. Scores are not semantic equivalence or medical correctness: inspect both notes, especially negation, before recommending changes. At most 500 notes from the sorted search result.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "max_notes": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 500
+        },
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_pairs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "exam_plan",
+    "description": "Estimate a daily study budget until an exam from a search, active new cards, currently scheduled reviews and topic counts. Does not change scheduling. Fixed per-card time assumptions are explicit; future answers, relearning and reviews of newly learned cards are not predicted, so reserve extra time.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "exam_date": {
+          "type": "string"
+        },
+        "start_date": {
+          "type": "string"
+        },
+        "daily_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        },
+        "new_card_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "review_card_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "weekly_minutes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1440
+          },
+          "minItems": 7,
+          "maxItems": 7
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "query"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 30
+        }
+      },
+      "required": [
+        "exam_date",
+        "daily_minutes"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "save_exam_plan",
+    "description": "Save an exam-planning request locally for later recalculation. Not synced by Anki; use export_workspace for transfer. Does not alter cards.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "request": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "request"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "saved_exam_plans",
+    "description": "Read locally saved exam requests. Recalculate with exam_plan to reflect current learning progress.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_source",
+    "description": "Register a user-provided citation locally, with revision tracking. Does not fetch or verify its content. Stored outside Anki sync; export_workspace backs up sources and links.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "authors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 100
+            },
+            "url": {
+              "type": "string"
+            },
+            "isbn": {
+              "type": "string"
+            },
+            "edition": {
+              "type": "string"
+            },
+            "year": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 9999
+            },
+            "locator": {
+              "type": "string"
+            },
+            "accessed": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_source",
+    "description": "Replace a citation with a new revision. Linked notes become needs_review until explicitly acknowledged; existing note content is never silently rewritten.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "authors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 100
+            },
+            "url": {
+              "type": "string"
+            },
+            "isbn": {
+              "type": "string"
+            },
+            "edition": {
+              "type": "string"
+            },
+            "year": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 9999
+            },
+            "locator": {
+              "type": "string"
+            },
+            "accessed": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "source_id",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_sources",
+    "description": "Read structured local source records, optionally filtered by title/authors text. Source records are user-provided, not verified.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "link_source",
+    "description": "Link explicit notes to the current source revision. Optional citation_field appends an escaped citation to that existing Anki field, so the text syncs with Anki. Local links do not sync. A changed source still needs review before acknowledge_source_review.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "locator": {
+          "type": "string"
+        },
+        "citation_field": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "note_ids"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "source_notes",
+    "description": "List linked notes and needs_review flags after source revisions. Missing/deleted notes remain visible for cleanup. Does not judge medical accuracy.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "needs_review_only": {
+          "type": "boolean"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "required": [
+        "source_id"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "acknowledge_source_review",
+    "description": "After the user has checked linked notes against a changed source, mark them reviewed at the current revision. Does not rewrite card content or verify it.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "note_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_id",
+        "note_ids",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "export_workspace",
+    "description": "Export local source records, source links and saved exam requests as JSON. Journal and temporary change plans are excluded. Treat exported note IDs as collection-specific. Save this response to back up or transfer metadata.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "import_workspace",
+    "description": "Import a previously exported workspace into the same collection/profile on another machine. Merges by ID, replacing those records. Validate collection identity yourself: note IDs can refer to different notes in a different collection. Journal is not imported.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data",
+        "confirm"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
       "openWorldHint": false
     }
   }

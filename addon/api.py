@@ -51,6 +51,7 @@ class Service:
         self.files_dir = Path(files_dir)
         self.files_dir.mkdir(parents=True, exist_ok=True)
         self.read_only, self.ui = read_only, ui
+        self._store = None
 
     def execute(self, name, args):
         if name not in TOOLS:
@@ -61,18 +62,51 @@ class Service:
             raise ToolError("Add-on is configured read_only")
         if spec.destructive and args.get("confirm") is not True:
             raise ToolError("Inspect the targets first, then pass confirm=true")
-        undo = self.col.add_custom_undo_entry("MCP: " + name) if spec.write and spec.undoable else None
+        from .state import snapshot
+
+        entry_id = self.store.begin(name, snapshot(self, name, args)) if spec.write else None
+        undo = None
+        error = None
+        result = None
         try:
-            return plain(spec.function(self, **args))
+            undo = self.col.add_custom_undo_entry("MCP: " + name) if spec.write and spec.undoable else None
+            result = plain(spec.function(self, **args))
+            return result
         except InvalidInput as exc:
+            error = exc
             raise ToolError(str(exc)[:2048]) from exc
         except NotFoundError as exc:
+            error = exc
             raise ToolError("Requested Anki object was not found") from exc
+        except BaseException as exc:
+            error = exc
+            raise
         finally:
-            if undo is not None:
-                self.col.merge_undo_entries(undo)
-            if spec.write and self.ui:
-                self.ui.reset()
+            try:
+                if undo is not None:
+                    self.col.merge_undo_entries(undo)
+            finally:
+                if entry_id is not None:
+                    try:
+                        self.store.finish(entry_id, snapshot(self, name, args, result), error)
+                    except Exception:
+                        # An operation may already be committed: never report a failure
+                        # that encourages the client to repeat it. pending survives restart.
+                        import sys
+
+                        print("Anki MCP: journal finalization failed; pending entry requires inspection", file=sys.stderr)
+                        if isinstance(result, dict):
+                            result["journal_warning"] = "Journal outcome pending; inspect collection before retrying"
+                if spec.write and self.ui:
+                    self.ui.reset()
+
+    @property
+    def store(self):
+        if self._store is None:
+            from .state import Store
+
+            self._store = Store(self.files_dir.parent, self.col.path)
+        return self._store
 
     def deck(self, deck_id):
         result = self.col.decks.get(deck_id, default=False)
@@ -147,4 +181,4 @@ class Service:
 
 
 # Import modules after Service exists; decorators register all public tools.
-from . import tools_collection, tools_notes, tools_learning, tools_media, tools_quality  # noqa: E402,F401
+from . import tools_collection, tools_notes, tools_learning, tools_media, tools_quality, tools_changes, tools_study, tools_sources  # noqa: E402,F401

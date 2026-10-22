@@ -65,6 +65,7 @@ class SetupDialog(QDialog):
         self.method.addItem("Streamable HTTP – Client mit Header-Unterstützung", "http")
         self.method.addItem("Codex – lokale stdio-Verbindung (TOML)", "codex")
         self.method.addItem("ChatGPT – Secure MCP Tunnel (YAML; zusätzliche Einrichtung)", "chatgpt")
+        self.method.addItem("Claude Desktop – Erweiterungsdatei (.mcpb)", "claude_bundle")
         form.addRow("KI / Verbindungsart:", self.method)
         candidates = python_candidates()
         self.python_path = QLineEdit(candidates[0] if candidates else "")
@@ -105,6 +106,24 @@ class SetupDialog(QDialog):
         self.usage_browser = QTextBrowser()
         self.usage_browser.setMarkdown(Path(__file__).with_name("usage_help.md").read_text(encoding="utf-8"))
         self.tabs.addTab(self.usage_browser, "KI-Funktionen")
+        journal_page = QWidget()
+        journal_layout = QVBoxLayout(journal_page)
+        explanation = QLabel(
+            "Lokales Protokoll der MCP-Schreibzugriffe. Bleibt nach Neustarts erhalten; manuelle Anki-Änderungen sind nicht enthalten. Quellen und Protokoll werden nicht von Anki synchronisiert."
+        )
+        explanation.setWordWrap(True)
+        journal_layout.addWidget(explanation)
+        self.journal_entries = QComboBox()
+        self.journal_entries.setAccessibleName("Protokolleintrag auswählen")
+        journal_layout.addWidget(self.journal_entries)
+        self.journal_details = QPlainTextEdit()
+        self.journal_details.setReadOnly(True)
+        journal_layout.addWidget(self.journal_details, 1)
+        reload_journal = QPushButton("Protokoll laden / aktualisieren")
+        reload_journal.clicked.connect(self.refresh_journal)
+        journal_layout.addWidget(reload_journal)
+        self.journal_entries.currentIndexChanged.connect(self.show_journal_entry)
+        self.tabs.addTab(journal_page, "Änderungsprotokoll")
         close = QPushButton("Schließen")
         close.clicked.connect(self.accept)
         layout.addWidget(close)
@@ -113,6 +132,35 @@ class SetupDialog(QDialog):
         self.tunnel_id.textChanged.connect(self.refresh_configuration)
         self.refresh_configuration()
         self.tabs.setCurrentIndex(start_tab)
+
+    def refresh_journal(self):
+        from .api import Service
+
+        self.journal_entries.clear()
+        try:
+            if not mw.col:
+                raise ValueError("Zuerst ein Profil öffnen.")
+            service = Service(mw.col, self.runtime.root / "user_files" / "transfers")
+            for item in service.execute("change_history", {"limit": 100})["items"]:
+                self.journal_entries.addItem(f"{item['started']} · {item['tool']} · {item['status']}", item["id"])
+            if not self.journal_entries.count():
+                self.journal_details.setPlainText("Noch keine MCP-Schreibzugriffe in diesem Profil.")
+        except Exception:
+            self.journal_details.setPlainText("Protokoll konnte nicht geladen werden. Profil öffnen und erneut versuchen.")
+
+    def show_journal_entry(self, *_args):
+        import json
+        from .api import Service
+
+        entry_id = self.journal_entries.currentData()
+        if not entry_id:
+            return
+        try:
+            service = Service(mw.col, self.runtime.root / "user_files" / "transfers")
+            data = service.execute("change_history", {"entry_id": entry_id})
+            self.journal_details.setPlainText(json.dumps(data, ensure_ascii=False, indent=2))
+        except Exception:
+            self.journal_details.setPlainText("Eintrag konnte nicht geladen werden; Profil möglicherweise gewechselt.")
 
     def jump_to_section(self, *_args):
         cursor = self.help_browser.textCursor()
@@ -142,6 +190,21 @@ class SetupDialog(QDialog):
         self.check.setEnabled(active)
         if not active:
             self.preview.setPlainText("Zuerst ein Anki-Profil öffnen und den Server starten. Die Anleitung ist auch offline verfügbar.")
+            return
+        if kind == "claude_bundle":
+            self.preview.setPlainText(
+                "Download: https://github.com/ImLasse/anki-mcp/releases/tag/v0.4.0\n"
+                "Datei: anki-mcp-claude-0.4.0.mcpb\n\n"
+                "In Claude Desktop als lokale Erweiterung installieren.\n"
+                f"Token-Datei auswählen: {self.runtime.root / 'user_files' / 'token'}\n"
+                f"Port: {self.runtime.server.server_port}\n\n"
+                "Anki und das gewünschte Profil geöffnet lassen.\n"
+                "Die Datei liest den Token lokal; keine Eingabe des Token-Inhalts erforderlich."
+            )
+            self.note.setText(
+                "Claude Desktop mit Unterstützung für lokale MCPB-Erweiterungen erforderlich. "
+                "Anleitung im Reiter Einrichtung. Für diese Verbindung ist keine separate Python-Installation nötig."
+            )
             return
         if kind == "codex":
             self.preview.setPlainText(

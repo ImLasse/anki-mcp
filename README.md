@@ -2,16 +2,20 @@
 
 Ein natives **Anki-Desktop-Add-on**, mit dem KI-Assistenten deine bestehende Sammlung bearbeiten und deinen Lernstand auswerten können. Entwickelt für umfangreiche Lernsammlungen, insbesondere im Medizinstudium. Kein AnkiConnect erforderlich; keine zusätzlichen Python-Pakete im Add-on erforderlich.
 
-**65 MCP-Werkzeuge** für Decks, Notizen, Karten, Medien, native Bildverdeckung, Tags, Lernplanung, Statistiken und vollständige native Deck-Optionsvorlagen. Verbindung über lokales Streamable HTTP oder eine mitgelieferte Python-stdio-Bridge.
+**80 MCP-Werkzeuge** für Decks, Notizen, Karten, Medien, native Bildverdeckung, Tags, Lernplanung, Statistiken und vollständige native Deck-Optionsvorlagen. Verbindung über lokales Streamable HTTP oder eine mitgelieferte Python-stdio-Bridge.
 
-## Neu in 0.3.0
+## Neu in 0.4.0
 
-- **Anleitung für die KI:** `usage_guide` liefert konkrete Abläufe für Bildverdeckung, Notiztypen, Medien, Lernanalyse und Qualitätsprüfung. Der Verbindungsdialog erklärt diese Funktionen im Reiter **KI-Funktionen**.
-- **Bilder tatsächlich ansehen:** `get_image` liefert ein MCP-Bild statt nur Base64-Text. Ein bildfähiger Client kann damit die Lage der Masken bestimmen. Native Bildverdeckung und kompatible Klone werden anhand des Notiztyps erkannt, auch mit deutschen Feldnamen.
-- **Vor dem Speichern prüfen:** `preview_notes` rendert vorgeschlagene Karten als natives Anki-HTML ohne Speichern und meldet doppelte erste Felder. Die native Vorschau kann dynamische Felder als Platzhalter zeigen.
-- **Technische Qualitätsprüfung:** `audit_notes` findet leere Pflicht-/Quellenfelder, fehlende lokale Medien und Cloze-Notizen ohne Cloze-Markierung. Es bewertet keine medizinische Richtigkeit und überprüft keine Quellenautorität.
+- **Änderungsvorschau:** Vorher/Nachher für bestehende Notizen, Tags, Karten und Deck-Einstellungen. Gespeicherte Pläne laufen nach 24 Stunden ab und lehnen inzwischen veränderte Ziele ab.
+- **Dauerhaftes Protokoll:** MCP-Schreibzugriffe und begrenzte Zustandsdaten über Neustarts hinweg; in Anki unter **Einrichtung & Hilfe → Änderungsprotokoll**.
+- **Ähnliche Karten:** Lokale Textähnlichkeit liefert Kandidaten zur fachlichen Prüfung durch die KI, ohne automatische Zusammenführung.
+- **Prüfungsplanung:** Termin, Tages-/Wochenbudget, Themen, vorhandene Fälligkeiten und neue Karten; Überlastung und nicht eingeplante Karten werden sichtbar.
+- **Strukturierte Quellen:** Revisionen, Notizverknüpfungen und Prüfbedarf nach Quellenänderungen; exportierbare lokale Metadaten.
+- **Einfachere Claude-Einrichtung:** Zusätzliches `.mcpb`-Paket für Claude Desktop unter Windows und macOS, ohne separate Python-Installation. Die bestehenden Claude-/Codex-/ChatGPT-Anleitungen bleiben enthalten.
 
-Update wie bisher über **Werkzeuge → Erweiterungen → Aus Datei installieren…**; anschließend Anki und den KI-Client neu starten. Die Add-on-ID bleibt gleich. Die Einrichtungsanleitung aus 0.2.0 ist vollständig enthalten.
+Die Basisversion **0.3.0** wurde vor diesen Erweiterungen auf `main` gesichert. Details und Grenzen: [neue Abläufe](docs/workflows.md). Upload, vorbereitete Beschreibung und Umstellung auf eine AnkiWeb-ID: [AnkiWeb-Anleitung](docs/ankiweb.md).
+
+**Einfach updaten:** Neue `.ankiaddon` über **Werkzeuge → Erweiterungen → Aus Datei installieren…** installieren; alte Version nicht vorher löschen. Danach Anki und KI-Client neu starten. Die Paket-ID bleibt `anki_mcp`, `user_files` bleibt erhalten. Nach der ersten AnkiWeb-Veröffentlichung sind Updates über **Auf Aktualisierungen überprüfen** möglich. GitHub-Updates allein erscheinen dort noch nicht.
 
 ## Funktionen
 
@@ -35,13 +39,13 @@ Vollständiger [Werkzeugkatalog](docs/tools.md), [Eingabeschemas](docs/tools.jso
 
 ## Installation
 
-1. `anki-mcp-0.3.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
+1. `anki-mcp-0.4.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
 2. In Anki: **Werkzeuge → Erweiterungen → Aus Datei installieren…** und die Datei auswählen.
 3. Anki neu starten und dein Profil öffnen.
 4. **Werkzeuge → Anki MCP – Einrichtung & Hilfe** öffnen. Die offline verfügbare Anleitung erklärt die Verbindung zur KI unter **Windows und macOS**. Der Reiter **Verbindung** zeigt deine tatsächlichen Pfade und kopierbare Client-Einstellungen.
 5. Deinen MCP-Client wie unten konfigurieren. Anki und das gewünschte Profil müssen geöffnet bleiben.
 
-Unterstützte Basis: **Anki 25.09.5 oder neuer**. Automatisierte Integrationsprüfungen verwenden **25.09.5 und 26.09.3**. Das Add-on funktioniert unter Anki Desktop; AnkiMobile/AnkiDroid laden keine Desktop-Add-ons. Die Python-Bridge benötigt separat **Python 3.10+** auf deinem Computer.
+Unterstützte Basis: **Anki 25.09.5 oder neuer**. Automatisierte Integrationsprüfungen verwenden **25.09.5 und 26.09.3**. Das Add-on funktioniert unter Anki Desktop; AnkiMobile/AnkiDroid laden keine Desktop-Add-ons. Die Python-Bridge benötigt separat **Python 3.10+**; das Claude-MCPB-Paket verwendet die Node-Laufzeit von Claude Desktop.
 
 ### MCP-Clients mit Streamable HTTP und eigenen Headern
 
@@ -59,6 +63,10 @@ Beispiel für Clients mit JSON-Konfiguration; das genaue Konfigurationsformat h�
 ```
 
 Der Verbindungsdialog in Anki enthält diese Konfiguration mit deinem tatsächlichen Token. Manche Clients verlangen zusätzlich `type: "http"` oder einen anderen Konfigurationsschlüssel.
+
+### Claude Desktop: Erweiterungsdatei unter Windows und macOS
+
+`anki-mcp-claude-0.4.0.mcpb` aus demselben Release in Claude **Einstellungen → Erweiterungen** als lokale Erweiterung installieren. In Anki unter **Verbindung → Claude Desktop – Erweiterungsdatei (.mcpb)** den Token-Dateipfad und Port ablesen und in Claude übernehmen. Anki geöffnet lassen und zunächst nur Decknamen lesen. Das Paket ist separat vom Anki-Add-on; die vollständigen Schritte und eine manuelle Alternative stehen in der [eingebauten Hilfe](addon/setup_help.md).
 
 ### stdio-Clients, zum Beispiel Claude Desktop
 
@@ -95,7 +103,7 @@ Die vollständige Anleitung wird mit dem Add-on ausgeliefert: **Werkzeuge → An
 
 **ChatGPT:** Der Verbindungsreiter erzeugt ein vorbereitetes YAML-Profil für den offiziellen **Secure MCP Tunnel**. Tunnelclient, Tunnel-ID und berechtigtes OpenAI-/ChatGPT-Konto sind zusätzlich erforderlich; diese Verbindung wurde hier noch nicht mit einem echten Konto abgenommen. Die [eingebaute Anleitung](addon/setup_help.md) erklärt die Schritte für Windows und macOS. ChatGPT kann den lokalen Server nicht direkt erreichen. [Offizielle Tunnel-Dokumentation](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels).
 
-**Plattformstatus:** Das Add-on ist für Windows, macOS (Apple Silicon und Intel) und Linux ausgelegt und enthält keine eigenen kompilierten Komponenten. Die lokalen automatisierten Prüfungen laufen auf Linux. Eine GitHub-Actions-Matrix für Windows, Linux und beide Mac-Architekturen ist vorbereitet, konnte mangels veröffentlichtem Repository aber noch nicht ausgeführt werden. Eine bestätigte Windows-/Mac-Freigabe und manuelle Endabnahme stehen damit noch aus.
+**Plattformstatus:** Der Nutzer bestätigt den Einsatz unter Windows und macOS. Die automatisierte Matrix prüft Windows und Linux mit Anki 25.09.5/26.09.3 sowie macOS auf Apple Silicon und Intel mit 26.09.3. Die Matrix für die Basisversion 0.3.0 ist [erfolgreich durchgelaufen](https://github.com/ImLasse/anki-mcp/actions/runs/39792517382). Aktuelle Ergebnisse stehen unter [Actions](https://github.com/ImLasse/anki-mcp/actions). Die Tests verwenden echte temporäre Sammlungen, Qt und den offiziellen MCP-Client; sie ersetzen keine vollständige manuelle Prüfung jeder Client-Version und Funktion.
 
 ## Direkt ausprobieren
 
@@ -132,12 +140,12 @@ python3 -m venv .venv
 
 Für die Qt-Integrationstests zusätzlich zur passenden Anki-Version `aqt`, `PyQt6` und `PyQt6-WebEngine` installieren und `QT_QPA_PLATFORM=offscreen` setzen. Ohne `aqt` wird dieser Test übersprungen. Tests erstellen temporäre echte Anki-Sammlungen und verwenden den offiziellen MCP-Python-Client für HTTP und stdio. Sie greifen nicht auf persönliche Profile zu.
 
-Ausgabe: `dist/anki-mcp-0.3.0.ankiaddon`. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
+Ausgabe: `dist/anki-mcp-0.4.0.ankiaddon` und `dist/anki-mcp-claude-0.4.0.mcpb`. Für die MCPB-Integrationstests zusätzlich Node 20+ installieren. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
 
 ## Umfang und Grenzen dieser Version
 
-Version **0.3.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
+Version **0.4.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
 
-Es gibt automatisierte Backend-, MCP- und Qt-Adaptertests. Eine manuelle Endabnahme mit deinem Desktop, deinem konkreten KI-Client und deiner persönlichen Sammlung steht noch aus. Große Exporte, Statistiken oder FSRS-Berechnungen können die Oberfläche während des Aufrufs blockieren. Details zu Versionen, Dateneinheiten und weiteren Grenzen stehen in [architecture.md](docs/architecture.md).
+Es gibt automatisierte Backend-, MCP- und Qt-Adaptertests. Der Nutzer berichtet erfolgreiche Nutzung unter Windows und macOS; eine vollständige manuelle Endabnahme aller Funktionen und KI-Clients ist damit noch nicht belegt. Große Exporte, Statistiken oder FSRS-Berechnungen können die Oberfläche während des Aufrufs blockieren. Details zu Versionen, Dateneinheiten und weiteren Grenzen stehen in [architecture.md](docs/architecture.md).
 
 Lizenz: [GNU AGPL v3 oder neuer](LICENSE). Anki ist ein separates Projekt von Ankitects und seinen Beitragenden.

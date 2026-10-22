@@ -3,7 +3,7 @@
 import json
 from .registry import TOOLS, ToolError, validate, ContentResult
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 PROTOCOLS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
 INSTRUCTIONS = """Operate on the currently open Anki Desktop profile. Use collection_info,
 list_decks and list_notetypes before writing. Use Anki browser search syntax.
@@ -21,6 +21,18 @@ note fields; do not fabricate references. Do not answer real review cards unless
 the user explicitly requests it, as this changes scheduling. Tool errors can include
 partial effects; inspect the collection before retrying. Media, imports and exports
 are not covered by collection undo. get_deck_options exposes full native settings.
+Use plan_changes before editing existing notes/cards/deck settings, show its
+before/after scope to the user, then apply_change_plan only within authorized scope.
+Plans expire after 24 hours and reject stale targets. change_history persists MCP
+write summaries and bounded snapshots across restarts, not manual edits or full backups.
+Use similar_notes for lexical overlap candidates; inspect negation and sources
+before judging semantic equivalence. exam_plan estimates time budgets with explicit
+assumptions; it does not change scheduling or predict all future repetitions.
+create_source/link_source track supplied references. update_source marks linked notes
+as needing review; acknowledge_source_review only after checking them.
+Sources, plans and journal are local add-on metadata, outside Anki sync and undo.
+Use export_workspace/import_workspace to transfer sources and saved exam requests
+with the same collection. Preserve citations in note fields for Anki sync.
 """
 
 

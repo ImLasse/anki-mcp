@@ -239,7 +239,7 @@ def delete_cards(s, card_ids, confirm):
 @tool(
     "usage_guide",
     "Read concrete Anki MCP workflows and examples. Call before image occlusion or custom note types. Explains localized fields, media, mask grouping, native vs third-party types and safe editing.",
-    {"topic": enum("start", "image_occlusion", "notetypes", "learning", "media", "quality")},
+    {"topic": enum("start", "image_occlusion", "notetypes", "learning", "media", "quality", "changes", "sources", "exam")},
     ("topic",),
 )
 def usage_guide(s, topic):

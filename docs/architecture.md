@@ -2,7 +2,7 @@
 
 ## Aufbau
 
-`addon/desktop.py` verbindet Ankis Profil-Hooks mit dem Server und plant jede Sammlungsoperation auf dem Qt-Hauptthread. `server.py` stellt `/mcp` auf `127.0.0.1` bereit. `protocol.py` implementiert JSON-RPC, MCP-Initialisierung, Ping und Werkzeuge. `registry.py` enthält explizite Eingabeschemas und deren Laufzeitprüfung. Die vier `tools_*.py`-Module verwenden native Anki-APIs. `api.py` kapselt Schreibschutz, Undo, Objektprüfung und die Serialisierung von Protobuf-Ergebnissen.
+`addon/desktop.py` verbindet Ankis Profil-Hooks mit dem Server und plant jede Sammlungsoperation auf dem Qt-Hauptthread. `server.py` stellt `/mcp` auf `127.0.0.1` bereit. `protocol.py` implementiert JSON-RPC, MCP-Initialisierung, Ping und Werkzeuge. `registry.py` enthält explizite Eingabeschemas und deren Laufzeitprüfung. Die `tools_*.py`-Module verwenden native Anki-APIs. `api.py` kapselt Schreibschutz, Undo, Objektprüfung und die Serialisierung von Protobuf-Ergebnissen.
 
 Das Add-on selbst benötigt ausschließlich Anki und dessen mitgelieferte Python-Bibliotheken. Es öffnet keine zweite Datenbankverbindung zur laufenden Sammlung. Es gibt kein `eval`, kein frei ausführbares Python und keinen SQL-Schreibzugriff. Eine interne, konstante SQL-Leseabfrage ermittelt den Schema-Zeitstempel für die native Notiztypkonvertierung.
 
@@ -16,7 +16,7 @@ Die eigenständig ausführbare `bridge.py` gehört zum Add-on. Sie benötigt au�
 
 Der Verbindungstest läuft ohne Sammlungszugriff im Anki-Hintergrundthread und ruft anschließend ausschließlich die lesenden MCP-Methoden `initialize`, `tools/list` und `collection_info` auf. Der eigentliche Sammlungszugriff wird wie jeder MCP-Aufruf auf den Hauptthread delegiert. Das Ergebnis enthält Werkzeuganzahl und Sammlungszähler, aber keine Tokens oder Karteninhalte. Der Test kann nicht bestätigen, dass ein externer KI-Client seine Konfigurationsdatei eingelesen hat. Die Bridge bietet denselben Test über `--check`.
 
-Windows- und Mac-Pfade mit Leerzeichen werden als einzelne Argumente in der JSON-Liste erzeugt. Es findet keine Shell-Ausführung statt. Lokale Linux-Tests prüfen die Standalone-Bridge nach Extraktion des Add-ons in einen Pfad mit Leerzeichen. Windows und macOS sind als eigene CI-Ziele vorgesehen; diese Jobs wurden noch nicht ausgeführt. Die manuelle Endabnahme auf beiden Systemen bleibt erforderlich.
+Windows- und Mac-Pfade mit Leerzeichen werden als einzelne Argumente in der JSON-Liste erzeugt. Es findet keine Shell-Ausführung statt. Lokale Linux-Tests prüfen die Standalone-Bridge nach Extraktion des Add-ons in einen Pfad mit Leerzeichen. Die GitHub-Matrix für 0.3.0 ist mit Windows, Linux sowie macOS Apple Silicon/Intel erfolgreich durchgelaufen. Der Nutzer berichtet erfolgreiche Nutzung auf Windows und macOS. Vollständige manuelle Client-/Funktionsprüfungen sind dadurch nicht ersetzt.
 
 ## Profil und Nebenläufigkeit
 
@@ -76,3 +76,13 @@ Quellen: [OpenAI Secure MCP Tunnel](https://developers.openai.com/api/docs/guide
 `preview_notes` verwendet Ankis nativen Card-Layout-Renderer, ohne Notizen oder Karten zu speichern. Es zeigt alle Standardvorlagen bzw. die nativen Cloze-Ordinals; die tatsächliche Erzeugung kann bedingte leere Vorlagen auslassen. Der Renderer kann dynamische Spezialfelder als Platzhalter ausgeben. Anki-Render-Hooks einschließlich anderer Add-ons bleiben aktiv; deren Nebenwirkungen bzw. mögliche LaTeX-Mediencaches fallen nicht unter die Aussage, dass keine Karten gespeichert werden.
 
 `audit_notes` prüft HTML-Inhalte und lokale Medienreferenzen seitenweise. Es führt keine externen Downloads und keine LaTeX-Kompilierung aus. Es unterscheidet leere optionale Felder von ausdrücklich verlangten Pflichtfeldern. Das Fehlen eines Pflichtfelds im Modell wird separat gemeldet. Die fachliche Richtigkeit medizinischer Karten, die Existenz und Autorität von Quellen sowie externe URLs werden nicht verifiziert.
+
+## Lokale Metadaten und Claude-Paket ab 0.4.0
+
+`state.py` verwaltet eine separate lokale SQLite-Datei in `user_files`, abhängig vom Sammlungspfad. Die Anki-Datenbank wird dafür nicht separat geöffnet. Die Datei speichert MCP-Schreibprotokolle, temporäre Änderungspläne, Quellenrevisionen/-verknüpfungen und gespeicherte Prüfungsanfragen. Sie enthält private Inhalte, unter POSIX wird Modus 0600 gesetzt; unter Windows gelten die Profilberechtigungen. Es gibt keine automatische Aufbewahrungsfrist. Quellen, Links und Prüfungsaufträge sind über JSON exportierbar; Journal und Änderungspläne nicht. Anki-Sync und Anki-Backups umfassen diese Datei nicht. Anki schließen und `user_files` für eine vollständige lokale Metadatensicherung kopieren.
+
+`tools_changes.py` prüft die expliziten Zielzustände direkt vor Anwendung auf dem Qt-Hauptthread. Mehrere Operationen werden in einer nativen Undo-Gruppe zusammengefasst, sind jedoch keine atomare Transaktion. Lokale Metadaten werden durch Collection-Undo nicht zurückgesetzt. Eine fehlgeschlagene Protokollfinalisierung lässt den Eintrag `pending`, anstatt eine bereits gespeicherte Operation als fehlgeschlagen auszugeben. Die Journalgrenzen und der genaue Ablauf stehen in [workflows.md](workflows.md).
+
+`tools_study.py` berechnet lokale TF-IDF-Ähnlichkeitskandidaten und eine Budgetverteilung über aktuelle Fälligkeiten. Es verwendet keine externen Embeddings oder medizinische Bewertung. Prüfungsplanung prognostiziert keine späteren Antwortfolgen, Lernschritte oder neuen Wiederholungen und ändert keine Scheduler-Einstellungen.
+
+`clients/claude` enthält das MCPB-Manifest und eine eigenständige Node-stdio-Bridge ohne Abhängigkeiten. Das Build-Skript erzeugt ein reproduzierbares ZIP mit Endung `.mcpb`. Die Bridge verbindet sich nur mit 127.0.0.1, liest den lokalen Token aus einer ausgewählten Datei, leitet MCP-Bildblöcke durch und wiederholt fehlgeschlagene Schreibanfragen nicht automatisch. Der Node-Transport wird aus dem tatsächlich extrahierten Paket mit dem offiziellen MCP-Client getestet. Manifest und Format folgen der [MCPB-Spezifikation](https://github.com/anthropics/mcpb/blob/main/MANIFEST.md); die Validierung verwendet MCPB CLI 2.1.2. Eine Installation in einer konkreten Claude-Desktop-Version ist eine separate manuelle Prüfung.

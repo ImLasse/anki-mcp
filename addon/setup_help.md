@@ -36,6 +36,21 @@ Die Datei `bridge.py` wird mit diesem Add-on installiert. Du musst das Repositor
 
 ## 3. Die KI verbinden: konkrete Schritte
 
+### Claude Desktop mit Erweiterungsdatei: Windows und macOS
+
+Dieser Weg benötigt keine separate Python-Installation. Du brauchst eine aktuelle Claude-Desktop-Version mit Unterstützung für lokale MCPB-Erweiterungen. Der tatsächliche Menüname kann je nach Version variieren.
+
+1. Das Anki-Add-on wie oben installieren und das gewünschte Profil geöffnet lassen.
+2. Unter [GitHub Releases](https://github.com/ImLasse/anki-mcp/releases/tag/v0.4.0) zusätzlich **anki-mcp-claude-0.4.0.mcpb** herunterladen. Diese Datei gehört in Claude Desktop, die `.ankiaddon`-Datei gehört in Anki.
+3. In Claude **Einstellungen → Erweiterungen** öffnen und die lokale Erweiterungsdatei installieren, je nach Version unter **Erweiterte Einstellungen → Erweiterung installieren**. Falls `.mcpb` per Doppelklick geöffnet wird, kannst du auch diesen Weg verwenden. Den angezeigten Zugriff auf deine Anki-Sammlung prüfen.
+4. In Anki **Verbindung → Claude Desktop – Erweiterungsdatei (.mcpb)** auswählen. Der Dialog zeigt den tatsächlichen Pfad zur **Token-Datei** und den Port.
+5. Im Claude-Erweiterungsdialog diese Datei auswählen und den Port übernehmen, standardmäßig **8766**. Die Datei heißt `token` ohne Endung und liegt im Add-on-Unterordner `user_files`. Den angezeigten tatsächlichen Pfad verwenden, damit auch Leerzeichen und AnkiWeb-Installationen stimmen.
+6. Erweiterung aktivieren, Claude bei Bedarf vollständig neu starten und fragen: **„Lies meine Decknamen und ändere nichts.“**
+
+Das Paket verwendet eine lokale Node-Bridge ohne zusätzliche npm-Pakete; Claude Desktop stellt für Node-Erweiterungen seine Laufzeit bereit. Es verbindet sich ausschließlich mit Anki auf diesem Rechner. Ohne Unterstützung lokaler Erweiterungen kannst du die nachfolgende manuelle stdio-Einrichtung verwenden. Das Paket wurde mit dem offiziellen MCP-Client getestet; die Installation im vollständigen Claude-Desktop-Fenster muss für deine jeweilige App-Version geprüft werden. Es ist nicht als geprüftes Verzeichnis-Listing veröffentlicht.
+
+Für **Codex** bleibt die kopierbare TOML-Konfiguration weiter unten verfügbar. **ChatGPT** verwendet weiterhin die gesondert erklärte Tunnel-Verbindung; die Claude-Datei ist dafür nicht geeignet.
+
 ### Claude Desktop auf Windows
 
 1. Installiere **Claude Desktop** und öffne darin **Einstellungen → Entwickler**. Je nach App-Version heißen die Menüpunkte leicht anders; gesucht ist die MCP-Server-Konfiguration.
@@ -176,7 +191,7 @@ Mit `read_only: true` in der Add-on-Konfiguration kannst du schreibende MCP-Werk
 
 ## Aktueller Qualitätsstand
 
-Diese Version bietet umfangreiche Sammlungs- und Lernfunktionen. Automatisierte Tests ersetzen keine manuelle Prüfung mit deinem Anki-Profil und deinem KI-Client. Login/Sync, Profilverwaltung, OCR und Medienerzeugung sind nicht Bestandteil dieser Version. Die manuelle macOS-Endabnahme steht noch aus. Der erste Client-Test sollte deshalb nur Daten lesen.
+Diese Version bietet umfangreiche Sammlungs- und Lernfunktionen. Automatisierte Tests ersetzen keine manuelle Prüfung mit deinem Anki-Profil und deinem KI-Client. Login/Sync, Profilverwaltung, OCR und Medienerzeugung sind nicht Bestandteil dieser Version. Der Nutzer berichtet erfolgreiche Nutzung unter Windows und macOS. Die automatisierte Plattformmatrix für die Basisversion ist erfolgreich; nicht jede Funktion oder Client-Version ist damit manuell abgenommen. Der erste Client-Test sollte deshalb nur Daten lesen.
 
 ## Offizielle Client-Dokumentation
 
@@ -185,3 +200,9 @@ Diese Version bietet umfangreiche Sammlungs- und Lernfunktionen. Automatisierte 
 - [ChatGPT-MCP-Verbindungen](https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt)
 
 Lokale Claude-Server hier beziehen sich auf die Desktop-Chat-Anbindung. Claude im Browser, Remote-Connectors und Cowork können andere Verbindungswege verwenden. Konten und Organisationen können lokale MCP-Server einschränken.
+
+## Einfach aktualisieren: Windows und macOS
+
+Neue `.ankiaddon` aus dem GitHub-Release herunterladen, in Anki **Werkzeuge → Erweiterungen → Aus Datei installieren…** auswählen und danach Anki sowie den KI-Client vollständig neu starten. Alte Version vorher nicht löschen; `user_files` mit Token und lokalen Metadaten bleibt erhalten. Eine neue Claude-MCPB-Datei bei Bedarf separat in Claude installieren. Codex- und HTTP-Konfigurationen bleiben bei unveränderten Pfaden und Port gültig.
+
+Nach Veröffentlichung auf AnkiWeb kann die per numerischem Code installierte Version über **Werkzeuge → Erweiterungen → Auf Aktualisierungen überprüfen** aktualisiert werden. GitHub allein stellt keine AnkiWeb-Updates bereit. Beim Wechsel von der manuellen Installation zum AnkiWeb-Code entsteht ein anderer Add-on-Ordner: `user_files` zuerst sichern, alte Kopie deaktivieren, nur eine Kopie aktiv lassen und Client-Pfade neu übernehmen. Die vollständige [AnkiWeb-Anleitung](https://github.com/ImLasse/anki-mcp/blob/main/docs/ankiweb.md) erklärt Veröffentlichung und Umstellung.
