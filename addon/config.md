@@ -3,4 +3,6 @@
 - `token`: Wird beim ersten Start automatisch erzeugt. Leer setzen und Profil neu öffnen, um den Token zu erneuern. Niemals veröffentlichen.
 - `read_only`: Bei `true` werden schreibende Werkzeuge gesperrt.
 
-Verbindungsdaten: **Werkzeuge → Anki MCP – Verbindung**. Der Server akzeptiert ausschließlich lokale, authentifizierte Verbindungen. Die Python-stdio-Bridge liegt im Repository unter `scripts/anki_mcp_bridge.py`.
+Schritt-für-Schritt-Anleitung für Windows/macOS und KI-Client-Konfiguration: **Werkzeuge → Anki MCP – Einrichtung & Hilfe**.
+
+Verbindungsdaten: **Werkzeuge → Anki MCP – Verbindung**. Der Server akzeptiert ausschließlich lokale, authentifizierte Verbindungen. Die eigenständig ausführbare Python-stdio-Bridge wird als `bridge.py` direkt mit dem Add-on installiert.

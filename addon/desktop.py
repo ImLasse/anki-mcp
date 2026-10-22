@@ -1,12 +1,11 @@
 """Qt main-thread dispatch, profile lifecycle and connection dialog."""
 
-import json
 import secrets
 import threading
 from concurrent.futures import Future, TimeoutError
 from pathlib import Path
 from aqt import mw, gui_hooks
-from aqt.qt import QAction, QDialog, QVBoxLayout, QPlainTextEdit, QPushButton
+from aqt.qt import QAction
 from aqt.utils import showWarning
 from .api import Service
 from .protocol import Protocol
@@ -21,6 +20,7 @@ class Runtime:
         self.lock = threading.Lock()
         self.pending = set()
         self.error = None
+        self.config = {}
         self.root = Path(__file__).resolve().parent
         self.addon_id = mw.addonManager.addonFromModule(__name__)
 
@@ -97,38 +97,14 @@ class Runtime:
             with self.lock:
                 self.pending.discard(future)
 
-    def dialog(self):
-        dialog = QDialog(mw)
-        dialog.setWindowTitle("Anki MCP – Verbindung")
-        dialog.resize(780, 440)
-        layout = QVBoxLayout(dialog)
-        editor = QPlainTextEdit()
-        editor.setReadOnly(True)
-        if self.server:
-            text = "MCP-Server läuft. Anki muss mit geöffnetem Profil laufen.\n\n"
-            text += "Streamable HTTP (Clients mit Header-Unterstützung):\n"
-            text += json.dumps(
-                {
-                    "mcpServers": {
-                        "anki": {
-                            "url": f"http://127.0.0.1:{self.server.server_port}/mcp",
-                            "headers": {"Authorization": "Bearer " + self.config["token"]},
-                        }
-                    }
-                },
-                ensure_ascii=False,
-                indent=2,
-            )
-            text += "\n\nToken-Datei für die Python-stdio-Bridge:\n" + str(self.root / "user_files" / "token")
-            text += "\n\nZugangsdaten nur in der lokalen MCP-Konfiguration speichern."
-        else:
-            text = "MCP-Server ist gestoppt. " + (self.error or "Profil öffnen oder Add-on-Konfiguration prüfen.")
-        editor.setPlainText(text)
-        layout.addWidget(editor)
-        close = QPushButton("Schließen")
-        close.clicked.connect(dialog.accept)
-        layout.addWidget(close)
+    def dialog(self, *_args, start_tab=0):
+        from .setup_dialog import SetupDialog
+
+        dialog = SetupDialog(self, mw, start_tab=start_tab)
         dialog.exec()
+
+    def connection_dialog(self, *_args):
+        self.dialog(start_tab=1)
 
 
 _runtime = None
@@ -141,7 +117,11 @@ def install():
     _runtime = Runtime()
     gui_hooks.profile_did_open.append(_runtime.start)
     gui_hooks.profile_will_close.append(_runtime.stop)
+    help_action = QAction("Anki MCP – Einrichtung && Hilfe", mw)
+    help_action.triggered.connect(_runtime.dialog)
+    mw.form.menuTools.addAction(help_action)
+    _runtime.help_action = help_action
     action = QAction("Anki MCP – Verbindung", mw)
-    action.triggered.connect(_runtime.dialog)
+    action.triggered.connect(_runtime.connection_dialog)
     mw.form.menuTools.addAction(action)
     _runtime.action = action

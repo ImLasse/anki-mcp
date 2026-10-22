@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def build():
-    output = ROOT / "dist" / "anki-mcp-0.1.0.ankiaddon"
+    output = ROOT / "dist" / "anki-mcp-0.2.0.ankiaddon"
     output.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted((ROOT / "addon").iterdir()):

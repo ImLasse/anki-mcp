@@ -7,11 +7,23 @@ permissions:
   contents: read
 jobs:
   integration:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        anki: ['25.9.5', '26.9.3']
+        include:
+          - os: ubuntu-latest
+            anki: '25.9.5'
+          - os: ubuntu-latest
+            anki: '26.9.3'
+          - os: windows-latest
+            anki: '25.9.5'
+          - os: windows-latest
+            anki: '26.9.3'
+          - os: macos-15
+            anki: '26.9.3'
+          - os: macos-15-intel
+            anki: '26.9.3'
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
@@ -20,17 +32,22 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install dependencies
+      - name: Linux Qt system libraries
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libegl1 libopengl0
+      - name: Install dependencies
+        run: |
           python -m pip install -r requirements-dev.txt
           python -m pip install "aqt==${{ matrix.anki }}" PyQt6 PyQt6-WebEngine
+      - name: Record actual platform and architecture
+        run: python -c "import platform; print(platform.platform(), platform.machine())"
       - name: Lint
         run: |
           ruff check addon scripts tests
           ruff format --check addon scripts tests
-      - name: Test real Anki collections, Qt dispatch and official MCP clients
+      - name: Test real Anki collections, setup dialog and official MCP clients
         run: pytest -q
       - name: Verify generated tool documentation
         run: |
@@ -40,5 +57,5 @@ jobs:
         run: python scripts/build.py
       - uses: actions/upload-artifact@v4
         with:
-          name: anki-mcp-${{ matrix.anki }}
+          name: anki-mcp-${{ matrix.os }}-${{ matrix.anki }}
           path: dist/*.ankiaddon

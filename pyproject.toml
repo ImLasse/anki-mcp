@@ -1,6 +1,6 @@
 [project]
 name = "anki-mcp-addon"
-version = "0.1.0"
+version = "0.2.0"
 description = "Native Anki Desktop MCP add-on for rich cards, media and learning analytics"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"

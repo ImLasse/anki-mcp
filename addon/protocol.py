@@ -3,7 +3,7 @@
 import json
 from .registry import TOOLS, ToolError, validate
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 PROTOCOLS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
 INSTRUCTIONS = """Operate on the currently open Anki Desktop profile. Use collection_info,
 list_decks and list_notetypes before writing. Use Anki browser search syntax.

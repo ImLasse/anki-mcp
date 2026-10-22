@@ -18,5 +18,8 @@ def test_reproducible_package_has_no_runtime_data():
         assert "__init__.py" in names
         assert "manifest.json" in names
         assert "LICENSE.txt" in names
+        assert "bridge.py" in names
+        assert "setup_help.md" in names
+        assert "setup_dialog.py" in names
         assert not any("user_files" in name or "__pycache__" in name or "token" in name for name in names)
         assert b'"token": ""' in archive.read("config.json")

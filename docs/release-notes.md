@@ -1,9 +1,13 @@
-Erste Vorabversion des nativen Anki-MCP-Add-ons mit **61 Werkzeugen** für Decks, Karten, Notizen, Tags, Medien, Bildverdeckung, Lernstände und vollständige native Deck-Optionsvorlagen inklusive FSRS.
+Version **0.2.0** ergänzt die Einrichtung der Verbindung zwischen Anki und einem KI-Client direkt im Add-on.
 
-**Installation:** `anki-mcp-0.1.0.ankiaddon` herunterladen, in Anki über **Werkzeuge → Erweiterungen → Aus Datei installieren…** installieren und Anki neu starten. Verbindungsdaten: **Werkzeuge → Anki MCP – Verbindung**.
+- Offline-Anleitung unter **Werkzeuge → Anki MCP – Einrichtung & Hilfe**, mit konkreten Schritten für Claude Desktop unter **Windows und macOS**, Cursor-/Codex-Hinweisen und einer Erklärung der ChatGPT-Grenzen.
+- Verbindungsreiter mit Python-Dateiauswahl, tatsächlichen Installationspfaden und kopierbarer Client-Konfiguration.
+- Lesender Test von Anmeldung, MCP-Initialisierung, Werkzeugen und Zugriff auf das geöffnete Profil.
+- Standalone-stdio-Bridge direkt im Add-on; kein zusätzlicher Repository-Download nötig. UTF-8-Ausgabe auch bei abweichender Windows-Pipe-Kodierung.
+- Weiterhin 61 Werkzeuge für Sammlung, Medien, Bildverdeckung, Lernstände und Deck-Einstellungen inklusive FSRS.
 
-**MCP-Verbindung:** Direktes lokales Streamable HTTP mit Bearer-Token oder `anki_mcp_bridge.py` mit Python 3.10+. Die Bridge ist ebenfalls als Release-Datei beigefügt. Einrichtung und Beispiele stehen in der README.
+**Installation oder Update:** `anki-mcp-0.2.0.ankiaddon` herunterladen, über **Werkzeuge → Erweiterungen → Aus Datei installieren…** installieren und Anki vollständig neu starten. Das Paket verwendet dieselbe Add-on-ID wie 0.1.0.
 
-**Geprüft:** 40 automatisierte Tests je Anki-Version (25.09.5 und 26.09.3), darunter echte Sammlungen, Medien, Bildverdeckung, FSRS/Deck-Optionen, Lernantworten, APKG-Austausch, Qt-Hauptthread/Profilende sowie offizieller MCP-Client über HTTP und stdio.
+**Geprüft:** Automatisierte Linux-Prüfungen mit echten Anki-Sammlungen, offiziellen MCP-Clients und realem Qt-Dialog. Tests der installierten Bridge aus einem Pfad mit Leerzeichen, Unicode-Medizinbegriffen und abweichender Pipe-Kodierung.
 
-Diese Version wurde noch nicht manuell mit deiner persönlichen Sammlung und deinem Desktop-Client abgenommen. Funktionsumfang und bekannte Grenzen stehen in der README. Größere Änderungen zuerst an einer Kopie prüfen; native Backups enthalten keine Medien.
+**Plattformstatus:** Windows und macOS (Apple Silicon/Intel) sind feste Zielplattformen. Die entsprechende GitHub-Actions-Matrix ist vorbereitet, aber noch nicht ausgeführt. Eine bestätigte Freigabe nach nativen Tests und manueller Endabnahme steht noch aus. GitHub-Veröffentlichung bleibt bis zur Bereitstellung eines Repositorys offen.

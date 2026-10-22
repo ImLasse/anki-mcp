@@ -8,6 +8,16 @@ Das Add-on selbst benötigt ausschließlich Anki und dessen mitgelieferte Python
 
 Der HTTP-Transport verwendet zustandslose JSON-Antworten ohne SSE-Stream oder Session-ID. `GET` und `DELETE` liefern 405. Unterstützte MCP-Protokollversionen: `2025-11-25`, `2025-06-18`, `2025-03-26` und über die stdio-Bridge auch Clients mit `2024-11-05`. Der HTTP-Transport setzt Streamable-HTTP-Unterstützung im Client voraus. JSON-RPC-Batches werden abgewiesen. Fortschrittsnachrichten, Remote-OAuth, Roots, Sampling und serverseitige Ressourcen sind nicht implementiert.
 
+## Einrichtung und Betriebssysteme
+
+`setup_help.md` ist die offline verfügbare Windows-/macOS-Anleitung. `setup_dialog.py` stellt sie in einem nativen Qt-Dialog dar und bietet JSON-Konfigurationen für Claude/stdio/HTTP, TOML für Codex und YAML-Profile für OpenAI Secure MCP Tunnel aus den tatsächlichen Installationspfaden. `connection.py` sucht nach Python-Dateien, ohne Programme zu starten; die Version muss separat geprüft werden. Unter macOS werden Homebrew-/Framework-Pfade berücksichtigt, unter Windows Standardinstallationen und der Suchpfad; WindowsApps-Aliasse werden nicht automatisch ausgewählt.
+
+Die eigenständig ausführbare `bridge.py` gehört zum Add-on. Sie benötigt außerhalb Ankis Python 3.10+, aber keine Zusatzpakete. `scripts/anki_mcp_bridge.py` ist ein Repository-Einstiegspunkt. Die Bridge erzwingt UTF-8 für MCP-Ausgabe, damit internationale medizinische Texte auch bei abweichender Windows-Pipe-Kodierung funktionieren.
+
+Der Verbindungstest läuft ohne Sammlungszugriff im Anki-Hintergrundthread und ruft anschließend ausschließlich die lesenden MCP-Methoden `initialize`, `tools/list` und `collection_info` auf. Der eigentliche Sammlungszugriff wird wie jeder MCP-Aufruf auf den Hauptthread delegiert. Das Ergebnis enthält Werkzeuganzahl und Sammlungszähler, aber keine Tokens oder Karteninhalte. Der Test kann nicht bestätigen, dass ein externer KI-Client seine Konfigurationsdatei eingelesen hat. Die Bridge bietet denselben Test über `--check`.
+
+Windows- und Mac-Pfade mit Leerzeichen werden als einzelne Argumente in der JSON-Liste erzeugt. Es findet keine Shell-Ausführung statt. Lokale Linux-Tests prüfen die Standalone-Bridge nach Extraktion des Add-ons in einen Pfad mit Leerzeichen. Windows und macOS sind als eigene CI-Ziele vorgesehen; diese Jobs wurden noch nicht ausgeführt. Die manuelle Endabnahme auf beiden Systemen bleibt erforderlich.
+
 ## Profil und Nebenläufigkeit
 
 Prozessweit läuft ein Server für das aktuell geöffnete Profil. Beim Schließen des Profils werden wartende Befehle storniert und der Server beendet. Eine Profilgeneration verhindert, dass ein bereits eingeplanter Befehl nach einem Profilwechsel ausgeführt wird. Portkonflikte werden in Anki angezeigt. Mehrere gleichzeitig laufende Anki-Instanzen benötigen unterschiedliche Ports.
@@ -50,3 +60,9 @@ Anki 25.09.5 und 26.09.3 werden mit echten temporären Sammlungen geprüft. MCP-
 `learning_statistics` und `fsrs_parameters` verwenden native Backend-Methoden, die Anki über `_backend` bereitstellt; diese können sich mit künftigen Versionen ändern. Einstellungen und Schemas werden aus den Protobuf-Deskriptoren der laufenden Anki-Version gelesen. Drittanbieter-Notiztypen lassen sich als normale Notiztypen bearbeiten; eigene Logik anderer Add-ons wird nicht automatisch zu MCP-Werkzeugen.
 
 Der Funktionsumfang konzentriert sich auf Sammlung, Medien und Lernen. Login, Synchronisation, Profilwechsel, Einstellungen anderer Add-ons, Audioaufnahme und Medienerzeugung sind nicht Teil dieser Version. Ein KI-Client kann zusätzliche Werkzeuge für Recherche und Medienerzeugung kombinieren. Medizinische Aussagen und Quellen werden vom Nutzer bzw. KI-Client geliefert; dieses Add-on überprüft deren fachliche Richtigkeit nicht.
+
+## ChatGPT-Tunnel-Profil
+
+Die generierte YAML verwendet einen HTTP-MCP-Kanal zum lokalen Anki-Endpunkt mit lokalen Anki-Bearer-Headern für Runtime und Discovery. Der OpenAI-Runtime-Key wird ausschließlich als `env:CONTROL_PLANE_API_KEY` referenziert. Der Tunnelclient gehört nicht zum Add-on; Installation, Tunnel-Provisionierung und Kontoberechtigungen sind separate Einrichtungsschritte. Die YAML wird nur angezeigt und kopiert. Das Add-on startet keinen Tunnel und veröffentlicht keinen Endpunkt. Die Profilstruktur folgt der offiziellen Konfigurationsreferenz; ein echter Tunnel wurde mangels Konto-/Tunnel-Zugang noch nicht getestet.
+
+Quellen: [OpenAI Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels), [Tunnelclient-Konfiguration](https://github.com/openai/tunnel-client/blob/master/docs/configuration.md).

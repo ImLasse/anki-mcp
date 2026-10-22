@@ -35,3 +35,12 @@ def note(service, basic):
             ]
         },
     )[0]
+
+
+@pytest.fixture(scope="session")
+def qt_app():
+    pytest.importorskip("aqt")
+    from aqt.qt import QApplication
+
+    app = QApplication.instance() or QApplication([])
+    yield app

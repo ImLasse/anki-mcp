@@ -7,11 +7,9 @@ from types import SimpleNamespace
 import pytest
 
 
-def test_qt_profile_lifecycle_and_main_thread(service, tmp_path, monkeypatch):
+def test_qt_profile_lifecycle_and_main_thread(service, tmp_path, monkeypatch, qt_app):
     pytest.importorskip("aqt")
-    from aqt.qt import QCoreApplication
-
-    app = QCoreApplication.instance() or QCoreApplication([])
+    app = qt_app
     from aqt.taskman import TaskManager
 
     desktop = importlib.import_module("addon.desktop")

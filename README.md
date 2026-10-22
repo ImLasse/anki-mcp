@@ -26,10 +26,10 @@ Vollständiger [Werkzeugkatalog](docs/tools.md), [Eingabeschemas](docs/tools.jso
 
 ## Installation
 
-1. `anki-mcp-0.1.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
+1. `anki-mcp-0.2.0.ankiaddon` unter [Releases](https://github.com/ImLasse/anki-mcp/releases) herunterladen.
 2. In Anki: **Werkzeuge → Erweiterungen → Aus Datei installieren…** und die Datei auswählen.
 3. Anki neu starten und dein Profil öffnen.
-4. **Werkzeuge → Anki MCP – Verbindung** öffnen. Dort stehen die lokalen Verbindungsdaten und der Pfad zur automatisch erzeugten Token-Datei.
+4. **Werkzeuge → Anki MCP – Einrichtung & Hilfe** öffnen. Die offline verfügbare Anleitung erklärt die Verbindung zur KI unter **Windows und macOS**. Der Reiter **Verbindung** zeigt deine tatsächlichen Pfade und kopierbare Client-Einstellungen.
 5. Deinen MCP-Client wie unten konfigurieren. Anki und das gewünschte Profil müssen geöffnet bleiben.
 
 Unterstützte Basis: **Anki 25.09.5 oder neuer**. Automatisierte Integrationsprüfungen verwenden **25.09.5 und 26.09.3**. Das Add-on funktioniert unter Anki Desktop; AnkiMobile/AnkiDroid laden keine Desktop-Add-ons. Die Python-Bridge benötigt separat **Python 3.10+** auf deinem Computer.
@@ -53,7 +53,7 @@ Der Verbindungsdialog in Anki enthält diese Konfiguration mit deinem tatsächli
 
 ### stdio-Clients, zum Beispiel Claude Desktop
 
-Das Repository herunterladen/klonen und die Datei `scripts/anki_mcp_bridge.py` dauerhaft lokal speichern. Anschließend in der MCP-Konfiguration absolute Pfade verwenden:
+Die eigenständig ausführbare Datei `bridge.py` ist bereits im installierten Add-on enthalten. Im Anki-Menü **Anki MCP – Einrichtung & Hilfe → Verbindung** die Verbindungsart **stdio** auswählen, den absoluten Pfad zu Python 3.10+ eintragen und die Konfiguration kopieren. Ein zusätzlicher Repository-Download ist nicht nötig. Für die Entwicklung bleibt `scripts/anki_mcp_bridge.py` als Einstiegspunkt verfügbar. Beispiel:
 
 ```json
 {
@@ -61,7 +61,7 @@ Das Repository herunterladen/klonen und die Datei `scripts/anki_mcp_bridge.py` d
     "anki": {
       "command": "/ABSOLUTER/PFAD/ZU/python3",
       "args": [
-        "/ABSOLUTER/PFAD/anki-mcp/scripts/anki_mcp_bridge.py",
+        "/ABSOLUTER/PFAD/ZUM/ANKI-ADDON/bridge.py",
         "--token-file",
         "/ABSOLUTER/PFAD/ZUM/ANKI-ADDON/user_files/token"
       ]
@@ -70,9 +70,23 @@ Das Repository herunterladen/klonen und die Datei `scripts/anki_mcp_bridge.py` d
 }
 ```
 
-Unter Windows zum Beispiel `C:\\Python312\\python.exe` und entsprechend doppelt maskierte Dateipfade verwenden. Alternativ akzeptiert die Bridge die Umgebungsvariable `ANKI_MCP_TOKEN`. Bei geändertem Port zusätzlich `--url http://127.0.0.1:DEIN_PORT/mcp` übergeben.
+Unter Windows zum Beispiel `C:\Python312\python.exe` verwenden. JSON benötigt doppelte Backslashes; die Kopierfunktion in Anki übernimmt das automatisch. Alternativ akzeptiert die Bridge die Umgebungsvariable `ANKI_MCP_TOKEN`. Bei geändertem Port zusätzlich `--url http://127.0.0.1:DEIN_PORT/mcp` übergeben.
 
 **Cloud-Clients:** Ein entfernter KI-Dienst kann deinen lokalen `127.0.0.1`-Server nicht direkt erreichen. Er benötigt einen lokalen MCP-fähigen Client bzw. eine passende lokale Verbindung. Dieses Projekt richtet keinen öffentlichen Server oder Tunnel ein.
+
+## Windows und macOS: Verbindung zur KI
+
+Die vollständige Anleitung wird mit dem Add-on ausgeliefert: **Werkzeuge → Anki MCP – Einrichtung & Hilfe**. Sie ist auch als [setup_help.md](addon/setup_help.md) lesbar und enthält:
+
+- Claude Desktop unter Windows: MCP-Konfiguration öffnen, Python-Interpreter auswählen, JSON-Eintrag ergänzen und Client neu starten.
+- Claude Desktop unter macOS: entsprechende Schritte mit Finder-/Library-Pfaden sowie Hinweisen für Apple Silicon und Intel.
+- Kopierbare Claude-/stdio-JSON-, Codex-TOML- und ChatGPT-Tunnel-YAML-Profile sowie die Unterschiede der Verbindungswege.
+- Einen ausdrücklich lesenden ersten KI-Aufruf und Hilfe bei Port-, Token-, Python- und Pfadfehlern.
+- Einen integrierten Verbindungstest für MCP-Initialisierung, Werkzeuge und Zugriff auf das geöffnete Profil. Der Test bestätigt noch nicht die Konfiguration eines externen KI-Clients.
+
+**ChatGPT:** Der Verbindungsreiter erzeugt ein vorbereitetes YAML-Profil für den offiziellen **Secure MCP Tunnel**. Tunnelclient, Tunnel-ID und berechtigtes OpenAI-/ChatGPT-Konto sind zusätzlich erforderlich; diese Verbindung wurde hier noch nicht mit einem echten Konto abgenommen. Die [eingebaute Anleitung](addon/setup_help.md) erklärt die Schritte für Windows und macOS. ChatGPT kann den lokalen Server nicht direkt erreichen. [Offizielle Tunnel-Dokumentation](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels).
+
+**Plattformstatus:** Das Add-on ist für Windows, macOS (Apple Silicon und Intel) und Linux ausgelegt und enthält keine eigenen kompilierten Komponenten. Die lokalen automatisierten Prüfungen laufen auf Linux. Eine GitHub-Actions-Matrix für Windows, Linux und beide Mac-Architekturen ist vorbereitet, konnte mangels veröffentlichtem Repository aber noch nicht ausgeführt werden. Eine bestätigte Windows-/Mac-Freigabe und manuelle Endabnahme stehen damit noch aus.
 
 ## Direkt ausprobieren
 
@@ -109,11 +123,11 @@ python3 -m venv .venv
 
 Für die Qt-Integrationstests zusätzlich zur passenden Anki-Version `aqt`, `PyQt6` und `PyQt6-WebEngine` installieren und `QT_QPA_PLATFORM=offscreen` setzen. Ohne `aqt` wird dieser Test übersprungen. Tests erstellen temporäre echte Anki-Sammlungen und verwenden den offiziellen MCP-Python-Client für HTTP und stdio. Sie greifen nicht auf persönliche Profile zu.
 
-Ausgabe: `dist/anki-mcp-0.1.0.ankiaddon`. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
+Ausgabe: `dist/anki-mcp-0.2.0.ankiaddon`. Der Build ist reproduzierbar und nimmt ausschließlich Add-on-Quellcode, statische Konfiguration und Lizenz auf; Laufzeitdaten und Zugangstoken werden ausgeschlossen.
 
 ## Umfang und Grenzen dieser Version
 
-Version **0.1.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
+Version **0.2.0** ist eine breite erste Implementierung der oben aufgeführten Sammlungs- und Lernfunktionen. Sie ist kein Nachweis einer vollständigen 1:1-Abdeckung jeder Anki-GUI-Funktion oder fremder Add-ons. Nicht enthalten sind AnkiWeb-Login/Sync, Profilverwaltung, Aufnahme/TTS/Transkription von Audio, OCR oder automatische medizinische Quellenrecherche. Bilder und Audiodateien können von einem KI-Client erzeugt und anschließend importiert werden. CSV-/Textdateien lassen sich vom Client in `add_notes`-Aufrufe umsetzen; der native Dateiaustausch hier verwendet `.apkg`.
 
 Es gibt automatisierte Backend-, MCP- und Qt-Adaptertests. Eine manuelle Endabnahme mit deinem Desktop, deinem konkreten KI-Client und deiner persönlichen Sammlung steht noch aus. Große Exporte, Statistiken oder FSRS-Berechnungen können die Oberfläche während des Aufrufs blockieren. Details zu Versionen, Dateneinheiten und weiteren Grenzen stehen in [architecture.md](docs/architecture.md).
 
